@@ -1,0 +1,1804 @@
+@if (!backend.configured) {
+  <main class="auth-page">
+    <section class="auth-card">
+      <div class="brand">
+        <span class="brand-mark">✳</span> life<span class="brand-light">/</span>os
+      </div>
+      <h1>Connect your workspace</h1>
+      <p>Set up Supabase to enable secure accounts and private cloud data for each user.</p>
+      <ol>
+        <li>Create a Supabase project.</li>
+        <li>Run <code>supabase/schema.sql</code> in its SQL Editor.</li>
+        <li>Add the project URL and anon key to <code>src/app/supabase.config.ts</code>.</li>
+      </ol>
+      <p>See <code>SUPABASE_SETUP.md</code> for the full setup guide.</p>
+    </section>
+  </main>
+} @else if (!backend.authReady()) {
+  <main class="auth-page">
+    <section class="auth-card">
+      <div class="brand">
+        <span class="brand-mark">✳</span> life<span class="brand-light">/</span>os
+      </div>
+      <p>Connecting to your private workspace…</p>
+    </section>
+  </main>
+} @else if (!backend.user()) {
+  <main class="auth-page">
+    <button
+      class="auth-theme-toggle"
+      type="button"
+      (click)="theme()"
+      [attr.aria-label]="dark() ? 'Switch to light mode' : 'Switch to dark mode'"
+    >
+      {{ dark() ? '☼' : '☾' }} <span>{{ dark() ? 'Light' : 'Dark' }} mode</span>
+    </button>
+    <section class="auth-card">
+      <div class="brand">
+        <span class="brand-mark">✳</span> life<span class="brand-light">/</span>os
+      </div>
+      <div class="auth-heading">
+        <span class="auth-kicker">YOUR PERSONAL SPACE</span>
+        <h1>{{ authMode() === 'signin' ? 'Welcome back' : 'Create your account' }}</h1>
+        <p>
+          {{
+            authMode() === 'signin'
+              ? 'Sign in to pick up where you left off.'
+              : 'A calmer, more intentional day starts here.'
+          }}
+        </p>
+      </div>
+      <form (submit)="$event.preventDefault(); submitAuth()">
+        <label class="field-label"
+          >Email<input
+            class="field-input"
+            type="email"
+            autocomplete="email"
+            [value]="authEmail()"
+            (input)="authEmail.set($any($event.target).value)"
+            placeholder="you@example.com"
+            required
+        /></label>
+        <div class="password-field">
+          <label class="field-label" for="auth-password">Password</label>
+          <div class="password-control">
+            <input
+              class="field-input"
+              id="auth-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              [attr.autocomplete]="authMode() === 'signin' ? 'current-password' : 'new-password'"
+              [value]="authPassword()"
+              (input)="authPassword.set($any($event.target).value)"
+              [attr.minlength]="authMode() === 'signup' ? 8 : null"
+              placeholder="{{
+                authMode() === 'signup' ? 'At least 8 characters' : 'Your password'
+              }}"
+              required
+            /><button
+              class="password-action"
+              type="button"
+              (click)="showPassword.update((value) => !value)"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            >
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+        </div>
+        @if (authMode() === 'signup') {
+          <div class="password-tools">
+            <div class="strength-summary">
+              <span>Password strength</span
+              ><b [class]="'strength-text strength-text-' + passwordStrength().score">{{
+                passwordStrength().label
+              }}</b>
+            </div>
+            <div
+              class="strength-meter"
+              role="meter"
+              aria-label="Password strength"
+              [attr.aria-valuenow]="passwordStrength().score"
+              aria-valuemin="0"
+              aria-valuemax="4"
+            >
+              @for (level of [1, 2, 3, 4]; track level) {
+                <span
+                  [class.active]="passwordStrength().score >= level"
+                  [class]="'strength-segment segment-' + passwordStrength().score"
+                ></span>
+              }
+            </div>
+            <button class="generate-password" type="button" (click)="generatePassword()">
+              ✦ &nbsp; Generate a strong password
+            </button>
+            @if (authPassword()) {
+              <button
+                class="copy-generated-password"
+                type="button"
+                (click)="copyGeneratedPassword()"
+              >
+                ▣ &nbsp; Copy generated password
+              </button>
+            }
+          </div>
+          <div class="password-field">
+            <label class="field-label" for="confirm-password">Confirm password</label>
+            <div class="password-control">
+              <input
+                class="field-input"
+                id="confirm-password"
+                type="password"
+                autocomplete="new-password"
+                [value]="confirmPassword()"
+                (input)="confirmPassword.set($any($event.target).value)"
+                placeholder="Type your password again"
+                required
+              />
+            </div>
+            @if (confirmPassword() && !passwordsMatch()) {
+              <small class="field-hint mismatch">Passwords do not match yet.</small>
+            } @else if (confirmPassword() && passwordsMatch()) {
+              <small class="field-hint matched">Passwords match.</small>
+            }
+          </div>
+        }
+        @if (authError() || backend.initializationError()) {
+          <p class="auth-error" role="alert">{{ authError() || backend.initializationError() }}</p>
+        }
+        <button
+          class="primary auth-submit"
+          [disabled]="
+            authBusy() ||
+            (authMode() === 'signup' && (!passwordsMatch() || passwordStrength().score < 2))
+          "
+        >
+          @if (authBusy()) {
+            <span class="button-spinner" aria-hidden="true"></span
+            >{{ authMode() === 'signin' ? 'Signing in…' : 'Creating account…' }}
+          } @else {
+            <span>{{ authMode() === 'signin' ? 'Sign in' : 'Create account' }}</span>
+          }
+        </button>
+        <button
+          class="auth-submit auth-google"
+          type="button"
+          [disabled]="authBusy()"
+          (click)="signInWithGoogle()"
+        >
+          <svg class="google-mark" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.88c-.58 2.96-2.25 5.48-4.73 7.18l7.58 5.89c4.42-4.08 7.25-10.08 7.25-17.54Z"/>
+            <path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24 24 0 0 0 0 21.56l7.98-6.19Z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.58-5.89c-2.1 1.41-4.79 2.24-8.32 2.24-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+      </form>
+      <div class="auth-switch-row">
+        <span>{{
+          authMode() === 'signin' ? "Don't have an account?" : 'Already have an account?'
+        }}</span
+        ><button class="auth-switch" type="button" (click)="switchAuthMode()">
+          {{ authMode() === 'signin' ? 'Create account' : 'Sign in' }}
+        </button>
+      </div>
+      <p class="auth-privacy"><span>▣</span> Your personal data stays private to your account.</p>
+    </section>
+  </main>
+} @else {
+  <div class="shell" [class.timer-fullscreen]="timerFullscreen()">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">✳</span> life<span class="brand-light">/</span>os
+      </div>
+      <div class="workspace-label">PERSONAL WORKSPACE</div>
+      <nav>
+        @for (item of nav; track item[0]) {
+          <button class="nav-item" [class.active]="page() === item[0]" (click)="page.set(item[0])">
+            <span class="nav-icon">{{ item[2] }}</span
+            >{{ item[1] }}
+            @if (item[0] === 'tasks' && openCount()) {
+              <span class="nav-count">{{ openCount() }}</span>
+            }
+            @if (item[0] === 'notifications' && reminderCount()) {
+              <span class="nav-count">{{ reminderCount() }}</span>
+            }
+          </button>
+        }
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="local-badge">
+          <i class="online-dot"></i
+          ><span
+            ><b>Private by design</b><small>Only your account can access this data</small></span
+          >
+        </div>
+        <div class="profile">
+          <span class="avatar">{{ backend.user()?.email?.slice(0, 1)?.toUpperCase() || 'U' }}</span
+          ><span
+            ><b>{{ backend.user()?.email }}</b
+            ><small>Personal account</small></span
+          >
+        </div>
+      </div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar">
+        <div class="crumb">
+          Workspace <span>/</span> <b>{{ pageTitle() }}</b>
+        </div>
+        <div class="top-actions">
+          <span class="date-chip">◷ &nbsp; {{ todayLabel }}</span
+          ><button class="icon-button" (click)="theme()">{{ dark() ? '☼' : '☾' }}</button
+          ><button class="outline-button" (click)="signOut()">Sign out</button>
+        </div>
+      </header>
+      <section class="content" [class.timer-page-content]="page() === 'timer'">
+        @if (backendError()) {
+          <div class="backend-error" role="alert">{{ backendError() }}</div>
+        }
+        @if (page() === 'overview') {
+          <div class="greeting-row">
+            <div>
+              <div class="eyebrow">{{ todayEyebrow }}</div>
+              <h1>Make today <em>count.</em></h1>
+              <p class="subtitle">A little progress each day adds up to remarkable results.</p>
+            </div>
+            <button class="primary" (click)="addNew()">＋ &nbsp; Add New <kbd>N</kbd></button>
+          </div>
+          <div class="hero-grid">
+            <article class="card focus-card">
+              <div class="card-heading">
+                <div>
+                  <span class="eyebrow">YOUR DAILY MOMENTUM</span>
+                  <h2>Today's focus</h2>
+                </div>
+                <span class="soft-tag">{{ todayTasks().length }} planned</span>
+              </div>
+              <div class="focus-body">
+                <div class="orb" [style.--progress]="animatedPercent() + '%'">
+                  <div class="orb-core">
+                    <strong>{{ animatedPercent() }}<small>%</small></strong
+                    ><span>COMPLETE</span>
+                  </div>
+                </div>
+                <div class="focus-copy">
+                  <h3>
+                    {{
+                      percent() === 100
+                        ? 'Beautifully done.'
+                        : percent()
+                          ? 'You’re finding your rhythm.'
+                          : 'A fresh page, all yours.'
+                    }}
+                  </h3>
+                  <p>
+                    {{ done() }} of {{ todayTasks().length }} planned activities complete. Start
+                    with one small win.
+                  </p>
+                  <div class="progress-track">
+                    <span [style.width]="animatedPercent() + '%'"></span>
+                  </div>
+                  <div class="progress-caption">
+                    <span>Daily progress</span><b>{{ done() }} / {{ todayTasks().length }}</b>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <article class="card week-card">
+              <div class="card-heading">
+                <div>
+                  <span class="eyebrow">THE BIG PICTURE</span>
+                  <h2>Keep showing up</h2>
+                </div>
+                <span class="trend-pill">↗ &nbsp; {{ weekDone() }} this week</span>
+              </div>
+              <div
+                class="week-bars"
+                role="img"
+                aria-label="Completed activities over the last seven days"
+              >
+                @for (d of weekBars(); track d.key) {
+                  <div
+                    class="bar-col"
+                    [class.current-day]="d.today"
+                    [attr.title]="
+                      d.label + ': ' + d.count + ' completed' + (d.today ? ' · Today' : '')
+                    "
+                  >
+                    <span class="bar-value">{{ d.count || ' ' }}</span>
+                    <div class="bar-track">
+                      <span [style.height]="d.height + '%'" [class.today-bar]="d.today"></span>
+                    </div>
+                    <small>{{ d.label }}</small>
+                  </div>
+                }
+              </div>
+              <div class="chart-foot">
+                <span><i class="legend-dot"></i> Your activities</span><span>Last 7 days</span>
+              </div>
+            </article>
+          </div>
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">YOUR DAY, AT A GLANCE</span>
+              <h2>Today’s plan</h2>
+            </div>
+            <button class="text-button" (click)="page.set('day')">Open My Day →</button>
+          </div>
+          <div class="plan-grid">
+            <article class="card task-card">
+              <div class="task-list-head">
+                <span>UP NEXT</span
+                ><button class="subtle-button" (click)="addTask()">＋ Add</button>
+              </div>
+              @if (todayTasks().length) {
+                @for (t of todayTasks().slice(0, 6); track t.id) {
+                  <div class="task-row">
+                    <button class="check" [class.checked]="t.status === 'done'" [disabled]="!canToggleTask(t)" [attr.title]="canToggleTask(t) ? null : 'Past tasks can only be updated from History'" (click)="toggle(t)">
+                      {{ t.status === 'done' ? '✓' : '' }}
+                    </button>
+                    <div class="task-info">
+                      <b [class.finished]="t.status === 'done'">{{ t.title }}</b
+                      ><small>{{ t.time || 'Anytime' }} · {{ t.category }}</small>
+                    </div>
+                    <span class="priority" [class]="'priority ' + t.priority">{{ t.priority }}</span
+                    ><button class="row-menu" (click)="edit(t)">···</button
+                    ><button
+                      class="delete-button"
+                      aria-label="Delete activity"
+                      title="Delete activity"
+                      (click)="removeTask(t)"
+                    >
+                      ×
+                    </button>
+                  </div>
+                }
+              } @else {
+                <div class="empty-inline">
+                  <span class="empty-spark">✳</span><b>Nothing on your plate.</b>
+                  <p>Create your first activity and start organizing your day.</p>
+                  <button class="text-button" (click)="addTask()">Add an activity →</button>
+                </div>
+              }
+            </article>
+            <article class="card habits-card">
+              <div class="task-list-head">
+                <span>DAILY RITUALS</span
+                ><button class="subtle-button" (click)="page.set('habits')">View all →</button>
+              </div>
+              @if (todayHabits().length) {
+                @for (h of todayHabits().slice(0, 5); track h.id) {
+                  <div class="habit-row">
+                    <button
+                      class="check habit-check"
+                      [class.checked]="isHabitDone(h)"
+                      [disabled]="!isScheduledToday(h)"
+                      [title]="isScheduledToday(h) ? 'Mark today complete' : 'Not scheduled today'"
+                      (click)="toggleHabit(h)"
+                    >
+                      {{ isHabitDone(h) ? '✓' : '' }}</button
+                    ><span class="habit-emoji">{{ h.icon }}</span>
+                    <div class="task-info">
+                      <b [class.finished]="isHabitDone(h)">{{ h.title }}</b
+                      ><small>{{ scheduleLabel(h) }}</small>
+                    </div>
+                    <span class="streak">🔥 {{ streak(h) }}</span>
+                  </div>
+                }
+              } @else {
+                <div class="empty-inline">
+                  <span class="empty-spark">✦</span>
+                  @if (habits().length) {
+                    <b>No rituals scheduled today.</b>
+                    <p>Your routine will appear here on its scheduled day.</p>
+                    <button class="text-button" (click)="page.set('habits')">
+                      Manage routines →
+                    </button>
+                  } @else {
+                    <b>Build a better routine.</b>
+                    <p>Start with one small habit and grow from there.</p>
+                    <button class="text-button" (click)="addHabit()">Create a habit →</button>
+                  }
+                </div>
+              }
+            </article>
+          </div>
+        }
+
+        @if (page() === 'day') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">PLAN WITH INTENTION</div>
+              <h1>My Day</h1>
+              <p class="subtitle">
+                A focused plan for one day. Move between dates or add something to this plan.
+              </p>
+            </div>
+            <div class="day-actions">
+              <button
+                class="icon-button"
+                aria-label="Previous day"
+                title="Previous day"
+                (click)="shiftDay(-1)"
+              >
+                ←</button
+              ><input
+                class="day-date-input"
+                type="date"
+                [value]="dayDate()"
+                (input)="dayDate.set($any($event.target).value)"
+              /><button
+                class="icon-button"
+                aria-label="Next day"
+                title="Next day"
+                (click)="shiftDay(1)"
+              >
+                →</button
+              ><button class="primary" (click)="addNew()">＋ Add to day</button>
+            </div>
+          </div>
+          <div class="day-summary card">
+            <div>
+              <span class="eyebrow">{{ dayLabel() }}</span>
+              <h2>
+                {{
+                  daySchedule().length
+                    ? dayPercent() === 100
+                      ? 'Tasks complete. Well done.'
+                      : 'Your plan, at a glance.'
+                    : 'Make room for what matters.'
+                }}
+              </h2>
+              <p>{{ dayDone() }} of {{ dayTasks().length }} tasks complete · {{ dayEvents().length }} events scheduled.</p>
+            </div>
+            <div class="day-summary-progress">
+              <strong>{{ dayPercent() }}<small>%</small></strong>
+              <div class="progress-track"><span [style.width]="dayPercent() + '%'"></span></div>
+              <small>Task completion</small>
+            </div>
+          </div>
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">YOUR SCHEDULE</span>
+              <h2>Activities for this day</h2>
+            </div>
+            <span class="soft-tag">{{ daySchedule().length }} planned</span>
+          </div>
+          <div class="card day-timeline">
+            @if (daySchedule().length) {
+              @for (item of daySchedule(); track item.type === 'task' ? item.task.id : item.event.id) {
+                @if (item.type === 'task') {
+                  <div class="timeline-row">
+                    <div class="timeline-time">{{ item.task.time || 'Anytime' }}</div>
+                    <div class="timeline-rail">
+                      <span [class.done-rail]="item.task.status === 'done'"></span>
+                    </div>
+                    <div class="timeline-task">
+                      <div class="task-info">
+                        <b [class.finished]="item.task.status === 'done'">{{ item.task.title }}</b
+                        ><small
+                          >{{ item.task.category || 'Personal' }} ·
+                          <span class="priority" [class]="'priority ' + item.task.priority">{{
+                            item.task.priority
+                          }}</span></small
+                        >
+                      </div>
+                      <button
+                        class="row-menu"
+                        aria-label="Edit task"
+                        title="Edit task"
+                        (click)="edit(item.task)"
+                      >
+                        ···</button
+                      ><button
+                        class="delete-button"
+                        aria-label="Delete task"
+                        title="Delete task"
+                        (click)="removeTask(item.task)"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="timeline-row event-timeline-row">
+                    <div class="timeline-time">{{ item.event.startTime }}{{ item.event.endTime ? ' – ' + item.event.endTime : '' }}</div>
+                    <div class="timeline-rail">
+                      <span class="event-timeline-rail"></span>
+                    </div>
+                    <div class="timeline-task event-timeline-task">
+                      <span class="event-marker" aria-hidden="true">◷</span>
+                      <div class="task-info">
+                        <b>{{ item.event.title }}</b>
+                        <small>
+                          Event · {{ eventStatusLabel(item.event, dayDate()) }}
+                          @if (item.event.location) { · {{ item.event.location }} }
+                        </small>
+                        @if (item.event.description) { <small>{{ item.event.description }}</small> }
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            } @else {
+              <div class="empty-inline">
+                <span class="empty-spark">✳</span><b>No activities planned for this day.</b>
+                <p>Add a task or event here, or move to another date.</p>
+                <button class="text-button" (click)="addNew()">＋ Add an activity</button>
+              </div>
+            }
+          </div>
+        }
+        @if (page() === 'notifications') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">GENTLE NUDGES, RIGHT ON TIME</div>
+              <h1>Notifications</h1>
+              <p class="subtitle">Reminders for upcoming activities and unfinished plans.</p>
+            </div>
+            <span class="soft-tag">{{ reminderCount() }} active</span>
+          </div>
+          <div class="notification-intro card">
+            <span class="notification-bell">♧</span>
+            <div>
+              <b>Your day, with a little more breathing room.</b>
+              <p>
+                Unfinished tasks appear here starting two hours before they’re scheduled, and stay
+                until completed. Morning adhkar arrive at 7:00 AM and evening adhkar at 4:00 PM.
+                Short adhkar appear in a corner reminder every four minutes while you use the app.
+              </p>
+            </div>
+          </div>
+          <div class="card notification-list">
+            @if (reminders().length) {
+              @for (reminder of reminders(); track reminder.id) {
+                <article
+                  class="notification-item"
+                  [class]="'notification-item reminder-' + reminder.kind"
+                >
+                  <span class="notification-icon">{{
+                    reminder.kind === 'adhkar'
+                      ? '۞'
+                      : reminder.kind === 'upcoming'
+                        ? '◷'
+                        : reminder.kind === 'event'
+                          ? '▦'
+                        : reminder.kind === 'overdue'
+                          ? '!'
+                          : '☾'
+                  }}</span>
+                  <div class="notification-copy">
+                    <b>{{ reminder.title }}</b>
+                    <p>{{ reminder.message }}</p>
+                    @if (reminder.taskId) {
+                      <small>{{ reminderDateLabel(reminder.taskId) }}</small>
+                    }
+                    @if (reminder.adhkarPeriod) {
+                      <small>{{
+                        reminder.adhkarPeriod === 'morning' ? 'Daily · 7:00 AM' : 'Daily · 4:00 PM'
+                      }}</small>
+                    }
+                  </div>
+                  @if (reminder.taskId) {
+                    <button class="subtle-button" (click)="completeReminder(reminder.taskId)">
+                      Mark done
+                    </button>
+                    <button class="subtle-button" (click)="deleteActiveNotification(reminder)">Delete notification</button>
+                  } @else if (reminder.eventId) {
+                    <button class="subtle-button" (click)="completeReminderEvent(reminder.eventId)">
+                      Mark complete
+                    </button>
+                    <button class="subtle-button" (click)="deleteActiveNotification(reminder)">Delete notification</button>
+                  } @else if (reminder.adhkarPeriod) {
+                    <button
+                      class="subtle-button"
+                      type="button"
+                      (click)="openAdhkarReminder(reminder)"
+                    >
+                      Open adhkar
+                    </button>
+                  }
+                </article>
+              }
+            } @else {
+              <div class="empty-inline">
+                <span class="empty-spark">✦</span><b>You’re all caught up.</b>
+                <p>
+                  Upcoming reminders will appear here when an activity is close or a plan is still
+                  unfinished near the end of your day.
+                </p>
+              </div>
+            }
+          </div>
+          <div class="section-head archive-heading">
+            <div>
+              <span class="eyebrow">KEEP THE ACTIVE LIST CLEAR</span>
+              <h2>Archived notifications</h2>
+            </div>
+            <button class="text-button" (click)="archivedNotificationsVisible.update(value => !value)">
+              {{ archivedNotificationsVisible() ? 'Hide' : 'Show' }} · {{ visibleArchivedNotifications().length }}
+            </button>
+          </div>
+          @if (archivedNotificationsVisible()) {
+            <div class="card notification-list archived-notifications">
+              @for (notification of visibleArchivedNotifications(); track notification.id) {
+                <article class="notification-item">
+                  <span class="notification-icon">✓</span>
+                  <div class="notification-copy">
+                    <b>{{ notification.title }}</b>
+                    <p>{{ notification.message }}</p>
+                    <small>Archived {{ formatNotificationDate(notification.archivedAt) }}</small>
+                  </div>
+                  <button class="delete-button" aria-label="Delete archived notification" (click)="deleteArchivedNotification(notification)">×</button>
+                </article>
+              } @empty {
+                <div class="empty-inline"><b>No archived notifications.</b><p>Expired reminders will appear here. Deleting one never deletes its task or event.</p></div>
+              }
+            </div>
+          }
+        }
+        @if (page() === 'timer') {
+          <div class="greeting-row page-title-row timer-heading">
+            <div>
+              <div class="eyebrow">A MOMENT FOR YOURSELF</div>
+              <h1>Focus timer</h1>
+              <p class="subtitle">A little pause, measured in your own time.</p>
+            </div>
+          </div>
+          <section class="timer-scene">
+            <button
+              class="timer-fullscreen-toggle"
+              type="button"
+              (click)="toggleTimerFullscreen($event)"
+              [attr.aria-pressed]="timerFullscreen()"
+              [attr.aria-label]="
+                timerFullscreen() ? 'Exit full screen timer' : 'Expand timer to full screen'
+              "
+              [title]="timerFullscreen() ? 'Exit full screen (Esc)' : 'Expand timer to full screen'"
+            >
+              <span aria-hidden="true">{{ timerFullscreen() ? '⤢' : '⛶' }}</span
+              ><span>{{ timerFullscreen() ? 'Exit focus' : 'Full screen' }}</span>
+            </button>
+            @if (timerFullscreenError()) {
+              <div class="timer-fullscreen-error" role="status">{{ timerFullscreenError() }}</div>
+            }
+            <div class="timer-console">
+              <div class="timer-console-top">
+                <span>LIFE / OS · FOCUS</span
+                ><span class="timer-device-state"
+                  ><i class="console-light" [class.running]="stopwatchRunning()"></i
+                  >{{ stopwatchRunning() ? 'RUNNING' : 'READY' }}</span
+                >
+              </div>
+              <div class="timer-screen">
+                <span class="screen-label">ELAPSED TIME</span>
+                <div class="stopwatch-display" role="timer" aria-live="off">
+                  {{ stopwatchDisplay()
+                  }}<span class="stopwatch-milliseconds">{{ stopwatchMilliseconds() }}</span>
+                </div>
+                <span class="screen-state">{{
+                  stopwatchRunning() ? 'One moment at a time' : 'Press start when you’re ready'
+                }}</span>
+              </div>
+              <div class="stopwatch-controls">
+                <button class="timer-start" (click)="startStopwatch()">
+                  {{ stopwatchRunning() ? 'Pause' : 'Start' }}</button
+                ><button
+                  class="timer-reset"
+                  [disabled]="!stopwatchRunning() && elapsedMilliseconds() === 0"
+                  (click)="resetStopwatch()"
+                >
+                  Reset
+                </button>
+              </div>
+              <div class="timer-console-bottom">
+                <span>STEADY · UNHURRIED · YOURS</span><span>✦</span>
+              </div>
+            </div>
+          </section>
+        }
+        @if (page() === 'tasks') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">YOUR PLAN FROM TODAY ON</div>
+              <h1>My Tasks</h1>
+              <p class="subtitle">
+                Past activities are tucked away. Today’s and future plans stay here.
+              </p>
+            </div>
+            <button class="primary" (click)="addNew()">＋ Add New</button>
+          </div>
+          <div class="toolbar card">
+            <div class="filter-tabs">
+              <button [class.active-filter]="filter() === 'all'" (click)="filter.set('all')">
+                All <span>{{ currentTasks().length }}</span></button
+              ><button [class.active-filter]="filter() === 'open'" (click)="filter.set('open')">
+                To do</button
+              ><button [class.active-filter]="filter() === 'in-progress'" (click)="filter.set('in-progress')">
+                In progress</button
+              ><button [class.active-filter]="filter() === 'done'" (click)="filter.set('done')">
+                Completed
+              </button>
+            </div>
+            <input
+              class="search-input"
+              placeholder="⌕  Search activities"
+              [value]="search()"
+              (input)="search.set($any($event.target).value)"
+            />
+          </div>
+          <div class="card full-task-card">
+            @if (rows().length) {
+              @for (t of rows(); track t.id) {
+                <div class="task-row full-task-row">
+                  <button class="check" [class.checked]="t.status === 'done'" [disabled]="!canToggleTask(t)" [attr.title]="canToggleTask(t) ? null : 'Past tasks can only be updated from History'" (click)="toggle(t)">
+                    {{ t.status === 'done' ? '✓' : '' }}
+                  </button>
+                  <div class="task-info">
+                    <b [class.finished]="t.status === 'done'">{{ t.title }}</b
+                    ><small
+                      >{{ t.date }} · {{ t.time || 'Anytime' }} ·
+                      {{ t.category || 'Personal' }}</small
+                    >
+                  </div>
+                  <span class="priority" [class]="'priority ' + t.priority">{{ t.priority }}</span
+                  ><button
+                    class="row-menu"
+                    aria-label="Edit activity"
+                    title="Edit activity"
+                    (click)="edit(t)"
+                  >
+                    ···</button
+                  ><button
+                    class="delete-button"
+                    aria-label="Delete activity"
+                    title="Delete activity"
+                    (click)="removeTask(t)"
+                  >
+                    ×
+                  </button>
+                </div>
+              }
+            } @else {
+              <div class="empty-inline">
+                <b>Nothing matches this view.</b>
+                <p>Create an activity or adjust your search and filters.</p>
+                <button class="text-button" (click)="addTask()">Create a task →</button>
+              </div>
+            }
+          </div>
+        }
+        @if (page() === 'events') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">APPOINTMENTS, WITHOUT THE CLUTTER</div>
+              <h1>Events</h1>
+              <p class="subtitle">Appointments and scheduled moments, kept separate from your tasks.</p>
+            </div>
+            <button class="primary" (click)="addEvent()">＋ New Event</button>
+          </div>
+          <div class="toolbar card">
+            <div class="filter-tabs">
+              <button [class.active-filter]="eventStatusFilter() === 'all'" (click)="eventStatusFilter.set('all')">All</button>
+              <button [class.active-filter]="eventStatusFilter() === 'upcoming'" (click)="eventStatusFilter.set('upcoming')">Upcoming</button>
+              <button [class.active-filter]="eventStatusFilter() === 'ongoing'" (click)="eventStatusFilter.set('ongoing')">Ongoing</button>
+              <button [class.active-filter]="eventStatusFilter() === 'completed'" (click)="eventStatusFilter.set('completed')">Completed</button>
+              <button [class.active-filter]="eventStatusFilter() === 'cancelled'" (click)="eventStatusFilter.set('cancelled')">Cancelled</button>
+            </div>
+          </div>
+          <div class="card full-task-card">
+            @for (event of visibleEvents(); track event.id) {
+              <article class="event-list-item">
+                <span class="event-marker">◷</span>
+                <div class="task-info">
+                  <b>{{ event.title }}</b>
+                  <small>{{ event.date }} · {{ event.startTime }}{{ event.endTime ? ' – ' + event.endTime : '' }}{{ event.location ? ' · ' + event.location : '' }}</small>
+                  @if (event.recurrence !== 'none') {
+                    <small>Repeats {{ event.recurrence }}{{ event.recurrenceUntil ? ' until ' + event.recurrenceUntil : '' }}</small>
+                  }
+                  @if (event.description) { <small>{{ event.description }}</small> }
+                </div>
+                <span class="event-status">{{ eventStatusLabel(event) }}</span>
+                @if (event.status === 'upcoming') {
+                  <button class="subtle-button" (click)="updateEventStatus(event, 'completed')">Complete</button>
+                  <button class="subtle-button" (click)="updateEventStatus(event, 'cancelled')">Cancel</button>
+                }
+                <button class="row-menu" aria-label="Edit event" (click)="editEvent(event)">···</button>
+                <button class="delete-button" aria-label="Delete event" (click)="removeEvent(event)">×</button>
+              </article>
+            } @empty {
+              <div class="empty-inline">
+                <b>No events here yet.</b>
+                <p>Create an appointment; events stay distinct from your actionable tasks.</p>
+                <button class="text-button" (click)="addEvent()">Create an event →</button>
+              </div>
+            }
+          </div>
+        }
+        @if (page() === 'history') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">YOUR DAYS, REMEMBERED</div>
+              <h1>History</h1>
+              <p class="subtitle">Review completed, missed, and skipped tasks without changing their original dates.</p>
+            </div>
+            <div class="day-actions">
+              <button class="icon-button" aria-label="Previous day" (click)="shiftHistory(-1)">←</button>
+              <input class="day-date-input" type="date" [value]="historyDate()" (input)="historyDate.set($any($event.target).value)" />
+              <button class="icon-button" aria-label="Next day" [disabled]="historyDate() >= todayISO" (click)="shiftHistory(1)">→</button>
+            </div>
+          </div>
+          <div class="stats-strip history-stats">
+            <div class="card stat-card"><span>COMPLETED</span><b>{{ historyCompleted() }}</b><small>Tasks finished this day</small></div>
+            <div class="card stat-card"><span>MISSED</span><b>{{ historyMissed() }}</b><small>Still preserved in history</small></div>
+            <div class="card stat-card"><span>SKIPPED</span><b>{{ historySkipped() }}</b><small>Intentionally skipped</small></div>
+            <div class="card stat-card"><span>COMPLETION</span><b>{{ historyCompletion() }}<i>%</i></b><small>{{ historyTasks().length }} scheduled tasks</small></div>
+          </div>
+          <div class="card full-task-card">
+            @for (task of historyTasks(); track task.id) {
+              <article class="task-row history-task-row">
+                <span class="task-status-dot" [class]="'task-status-dot status-' + task.status"></span>
+                <div class="task-info">
+                  <b [class.finished]="task.status === 'done'">{{ task.title }}</b>
+                  <small>{{ task.time || 'Anytime' }}{{ task.dueTime ? ' – ' + task.dueTime : '' }} · {{ task.category }} · {{ task.status }}</small>
+                  @if (task.status === 'done') { <small>{{ formatCompletionTime(task.completedAt) }}</small> }
+                  @if (task.description) { <small>{{ task.description }}</small> }
+                </div>
+                @if (task.status === 'missed') {
+                  <button class="subtle-button" (click)="completeHistoryTask(task)">Complete</button>
+                  <button class="subtle-button" (click)="startReschedule(task)">Reschedule</button>
+                  <button class="subtle-button" (click)="skipHistoryTask(task)">Skip</button>
+                  <button class="subtle-button" (click)="keepHistoryTask()">Keep in history</button>
+                }
+              </article>
+            } @empty {
+              <div class="empty-inline"><b>No tasks recorded for this day.</b><p>Choose another date to review your history.</p></div>
+            }
+          </div>
+        }
+        @if (page() === 'habits') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">SMALL THINGS, DONE OFTEN</div>
+              <h1>Daily rituals</h1>
+              <p class="subtitle">Consistency is built one check mark at a time.</p>
+            </div>
+            <button class="primary" (click)="addHabit()">＋ New habit</button>
+          </div>
+          <div class="stats-strip">
+            <div class="card stat-card">
+              <span>ACTIVE RITUALS</span><b>{{ habits().length }}</b
+              ><small>Keep showing up</small>
+            </div>
+            <div class="card stat-card">
+              <span>CHECKED TODAY</span><b>{{ habitsDone() }} / {{ todayHabits().length }}</b
+              ><small>Your daily consistency</small>
+            </div>
+            <div class="card stat-card">
+              <span>BEST STREAK</span><b>{{ bestHabitStreak() }} <i>days</i></b
+              ><small>Every day counts</small>
+            </div>
+          </div>
+          <div class="card full-task-card">
+            @for (h of habits(); track h.id) {
+              <div class="habit-row large-habit">
+                <button
+                  class="check habit-check"
+                  [class.checked]="isHabitDone(h)"
+                  [disabled]="!isScheduledToday(h)"
+                  [title]="isScheduledToday(h) ? 'Mark today complete' : 'Not scheduled today'"
+                  (click)="toggleHabit(h)"
+                >
+                  {{ isHabitDone(h) ? '✓' : '' }}</button
+                ><span class="habit-emoji">{{ h.icon }}</span>
+                <div class="task-info">
+                  <b [class.finished]="isHabitDone(h)">{{ h.title }}</b
+                  ><small>{{ scheduleLabel(h) }} · {{ streak(h) }} day streak</small>
+                </div>
+                <button class="subtle-button routine-edit" (click)="editHabit(h)">Edit</button
+                ><button class="delete-button" aria-label="Delete routine" (click)="removeHabit(h)">
+                  ×
+                </button>
+              </div>
+            } @empty {
+              <div class="empty-inline">
+                <b>Build a better routine.</b>
+                <p>Start with one small habit and grow from there.</p>
+                <button class="text-button" (click)="addHabit()">Create a habit →</button>
+              </div>
+            }
+          </div>
+        }
+
+        @if (page() === 'calendar') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">MAKE SPACE FOR WHAT MATTERS</div>
+              <h1>Calendar</h1>
+              <p class="subtitle">Your activities, organized by date.</p>
+            </div>
+            <button class="primary" (click)="addNew()">＋ Add New</button>
+          </div>
+          <div class="card calendar-card">
+            <div class="calendar-toolbar">
+              <div>
+                <span class="eyebrow">YOUR SCHEDULE</span>
+                <h2>{{ monthLabel() }}</h2>
+              </div>
+              <div class="calendar-controls">
+                <button
+                  class="icon-button"
+                  aria-label="Previous month"
+                  title="Previous month"
+                  (click)="shiftMonth(-1)"
+                >
+                  ←</button
+                ><button class="outline-button" (click)="goToCalendarToday()">Today</button
+                ><button
+                  class="icon-button"
+                  aria-label="Next month"
+                  title="Next month"
+                  (click)="shiftMonth(1)"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+            <div class="calendar-grid">
+              @for (d of ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']; track d) {
+                <div class="calendar-weekday">{{ d }}</div>
+              }
+              @for (d of monthDays(); track d.date) {
+                <button
+                  class="calendar-day"
+                  [class.is-today]="d.date === todayISO"
+                  [class.selected-day]="d.date === selectedDate()"
+                  [class.muted-day]="!d.current"
+                  [attr.aria-label]="calendarDayLabel(d.date, d.current)"
+                  [attr.aria-pressed]="d.date === selectedDate()"
+                  (click)="selectCalendarDate(d.date)"
+                >
+                  <span>{{ d.day }}</span>
+                  @if (hasScheduledItems(d.date)) {
+                    <i class="calendar-dot"></i>
+                  }
+                </button>
+              }
+            </div>
+            <div class="calendar-agenda">
+              <div class="section-head">
+                <div>
+                  <span class="eyebrow">SELECTED DAY</span>
+                  <h2>{{ selectedDateLabel() }}</h2>
+                </div>
+                <div class="calendar-agenda-actions">
+                  <span class="soft-tag">{{ selectedTasks().length + selectedEvents().length }} planned</span
+                  ><button class="text-button" (click)="addNew()">＋ Add</button>
+                </div>
+              </div>
+              <div class="filter-tabs schedule-filters" aria-label="Filter scheduled items">
+                <button [class.active-filter]="scheduleFilter() === 'all'" (click)="scheduleFilter.set('all')">All</button>
+                <button [class.active-filter]="scheduleFilter() === 'tasks'" (click)="scheduleFilter.set('tasks')">Tasks</button>
+                <button [class.active-filter]="scheduleFilter() === 'events'" (click)="scheduleFilter.set('events')">Events</button>
+              </div>
+              @for (t of selectedTasks(); track t.id) {
+                <div class="task-row">
+                  <button class="check" [class.checked]="t.status === 'done'" [disabled]="!canToggleTask(t)" [attr.title]="canToggleTask(t) ? null : 'Past tasks can only be updated from History'" (click)="toggle(t)">
+                    {{ t.status === 'done' ? '✓' : '' }}
+                  </button>
+                  <div class="task-info">
+                    <b [class.finished]="t.status === 'done'">{{ t.title }}</b
+                    ><small>{{ t.time || 'Anytime' }}</small>
+                  </div>
+                  <span class="priority" [class]="'priority ' + t.priority">{{ t.priority }}</span>
+                </div>
+              }
+              @for (event of selectedEvents(); track event.id) {
+                <div class="task-row event-row">
+                  <span class="event-marker">◷</span>
+                  <div class="task-info">
+                    <b>{{ event.title }}</b>
+                    <small>{{ event.startTime }}{{ event.endTime ? ' – ' + event.endTime : '' }}{{ event.location ? ' · ' + event.location : '' }}</small>
+                  </div>
+                  <span class="event-status">{{ eventStatusLabel(event, selectedDate()) }}</span>
+                </div>
+              }
+              @if (!selectedTasks().length && !selectedEvents().length) {
+                <div class="empty-inline">
+                  <span class="empty-spark">✳</span><b>No activities on this date.</b>
+                  <p>Choose another day or add something to your schedule.</p>
+                  <button class="text-button" (click)="addNew()">＋ Add an activity</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (page() === 'analytics') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">NOTICE YOUR OWN PROGRESS</div>
+              <h1>Progress, in perspective.</h1>
+              <p class="subtitle">Honest insights from the activities you’ve tracked.</p>
+            </div>
+          </div>
+          <div class="stats-strip">
+            <div class="card stat-card">
+              <span>ACTIVITIES COMPLETED</span><b>{{ totalDone() }}</b
+              ><small>Based on saved records</small>
+            </div>
+            <div class="card stat-card">
+              <span>TODAY’S COMPLETION</span><b>{{ percent() }}<i>%</i></b
+              ><small>Done ÷ planned activities</small>
+            </div>
+            <div class="card stat-card">
+              <span>OPEN ACTIVITIES</span><b>{{ openCount() }}</b
+              ><small>Ready when you are</small>
+            </div>
+          </div>
+          <div class="card analytics-card">
+            <span class="eyebrow">TODAY'S ACTIVITY</span>
+            <h2>Your progress today</h2>
+            <div class="analytics-bars">
+              <div class="analytics-col">
+                <span class="analytics-value">{{ done() }}</span>
+                <div class="analytics-track"><i [style.height]="percent() + '%'"></i></div>
+                <span>Completed</span>
+              </div>
+              <div class="analytics-col">
+                <span class="analytics-value">{{ todayTasks().length - done() }}</span>
+                <div class="analytics-track"><i [style.height]="100 - percent() + '%'"></i></div>
+                <span>Remaining</span>
+              </div>
+            </div>
+            <p class="chart-note">
+              Completion rate is completed activities divided by activities scheduled for today.
+              Empty days are not presented as zero performance.
+            </p>
+          </div>
+          @if (!tasks().length) {
+            <div class="insight-card">
+              Your progress story starts here. Complete a few scheduled activities to unlock
+              meaningful insights.
+            </div>
+          }
+        }
+
+        @if (page() === 'goals') {
+          <div class="greeting-row page-title-row goals-heading">
+            <div>
+              <div class="eyebrow">A LIFE THAT MOVES IN YOUR DIRECTION</div>
+              <h1>Your goals, in motion.</h1>
+              <p class="subtitle">Make progress visible. Keep the next step within reach.</p>
+            </div>
+            <button class="primary" (click)="addGoal()">＋ New goal</button>
+          </div>
+          <div class="goal-overview">
+            <article class="card goal-stat">
+              <span class="goal-stat-icon">◎</span>
+              <div>
+                <small>IN PROGRESS</small><b>{{ activeGoalCount() }}</b>
+              </div>
+            </article>
+            <article class="card goal-stat">
+              <span class="goal-stat-icon">✓</span>
+              <div>
+                <small>COMPLETED</small><b>{{ completedGoalCount() }}</b>
+              </div>
+            </article>
+            <article class="card goal-stat goal-average">
+              <span class="goal-stat-icon">↗</span>
+              <div>
+                <small>AVERAGE PROGRESS</small><b>{{ averageGoalProgress() }}<i>%</i></b>
+              </div>
+              <span class="goal-average-track"
+                ><i [style.width]="averageGoalProgress() + '%'"></i
+              ></span>
+            </article>
+          </div>
+          <div class="goal-toolbar">
+            <div>
+              <h2>Your directions</h2>
+              <p>Small, steady steps add up.</p>
+            </div>
+            <div class="goal-filters" role="group" aria-label="Filter goals">
+              <button [class.active]="goalFilter() === 'all'" (click)="goalFilter.set('all')">
+                All <span>{{ goals().length }}</span></button
+              ><button
+                [class.active]="goalFilter() === 'active'"
+                (click)="goalFilter.set('active')"
+              >
+                In progress <span>{{ activeGoalCount() }}</span></button
+              ><button
+                [class.active]="goalFilter() === 'completed'"
+                (click)="goalFilter.set('completed')"
+              >
+                Completed <span>{{ completedGoalCount() }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="goal-grid">
+            @for (g of visibleGoals(); track g.id) {
+              <article class="card goal-card" [class.goal-is-complete]="goalProgress(g) >= 100">
+                <div class="goal-card-top">
+                  <span class="goal-icon">{{ goalProgress(g) >= 100 ? '✓' : '◎' }}</span
+                  ><span
+                    class="goal-status"
+                    [class.goal-status-complete]="goalProgress(g) >= 100"
+                    [class.goal-status-overdue]="goalDueLabel(g).startsWith('Overdue')"
+                    >{{ goalDueLabel(g) }}</span
+                  >
+                  <div class="goal-actions">
+                    <button
+                      class="row-menu"
+                      type="button"
+                      aria-label="Edit goal"
+                      title="Edit goal"
+                      (click)="editGoal(g)"
+                    >
+                      ···</button
+                    ><button
+                      class="delete-button"
+                      type="button"
+                      aria-label="Delete goal"
+                      title="Delete goal"
+                      (click)="removeGoal(g)"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <div class="goal-date">
+                  {{ g.targetDate ? 'TARGET · ' + formatGoalDate(g.targetDate) : 'NO TARGET DATE' }}
+                </div>
+                <h3>{{ g.title }}</h3>
+                <p>
+                  {{
+                    g.description ||
+                      'Your direction is set. Add a note about why it matters or what the next step could be.'
+                  }}
+                </p>
+                <div class="goal-progress-heading">
+                  <span>Progress</span><b>{{ goalProgress(g) }}%</b>
+                </div>
+                <div
+                  class="goal-progress-track"
+                  role="progressbar"
+                  [attr.aria-label]="'Progress for ' + g.title"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-valuenow]="goalProgress(g)"
+                >
+                  <span [style.width]="goalProgress(g) + '%'"></span>
+                </div>
+                <div class="goal-progress-footer">
+                  <span>{{
+                    goalTasks(g).length
+                      ? goalStepSummary(g)
+                      : goalProgress(g) >= 100
+                        ? 'You made it happen.'
+                        : goalProgress(g) === 0
+                          ? 'Every journey starts somewhere.'
+                          : 'Keep your momentum going.'
+                  }}</span>
+                  <div class="goal-progress-actions">
+                    <button
+                      type="button"
+                      [disabled]="goalProgress(g) <= 0"
+                      [attr.aria-label]="'Decrease ' + g.title + ' progress'"
+                      (click)="bumpGoal(g, -10)"
+                    >
+                      −</button
+                    ><button
+                      type="button"
+                      [disabled]="goalProgress(g) >= 100"
+                      [attr.aria-label]="'Increase ' + g.title + ' progress'"
+                      (click)="bumpGoal(g, 10)"
+                    >
+                      ＋</button
+                    ><button class="goal-add-step" type="button" (click)="addTask(g.id)">
+                      ＋ Add step
+                    </button>
+                  </div>
+                </div>
+                @if (goalTasks(g).length) {
+                  <div class="goal-steps">
+                    @for (step of goalTasks(g); track step.id) {
+                      <div class="goal-step">
+                        <button
+                          class="check"
+                          type="button"
+                          [class.checked]="step.status === 'done'"
+                          [disabled]="!canToggleTask(step)"
+                          [attr.title]="canToggleTask(step) ? null : 'Past tasks can only be updated from History'"
+                          [attr.aria-label]="
+                            (step.status === 'done' ? 'Reopen ' : 'Complete ') + step.title
+                          "
+                          (click)="toggle(step)"
+                        >
+                          {{ step.status === 'done' ? '✓' : '' }}</button
+                        ><span [class.finished]="step.status === 'done'">{{ step.title }}</span
+                        ><small
+                          >{{ formatGoalDate(step.date) || 'No date' }} · +{{
+                            step.goalContribution ?? 0
+                          }}%</small
+                        >
+                      </div>
+                    }
+                  </div>
+                }
+              </article>
+            } @empty {
+              <div class="card goal-empty">
+                <span class="empty-spark">◎</span
+                ><b>{{
+                  goalFilter() === 'completed'
+                    ? 'No completed goals yet.'
+                    : 'A meaningful direction starts with one goal.'
+                }}</b>
+                <p>
+                  {{
+                    goalFilter() === 'completed'
+                      ? 'Your completed goals will be collected here.'
+                      : 'Choose something that matters to you, set a target date if helpful, and track progress as you go.'
+                  }}
+                </p>
+                <button class="primary" (click)="addGoal()">＋ Create your first goal</button>
+              </div>
+            }
+          </div>
+        }
+
+        @if (page() === 'settings') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">YOUR SPACE, YOUR RULES</div>
+              <h1>Settings</h1>
+              <p class="subtitle">Your data is synced to your private account.</p>
+            </div>
+          </div>
+          <div class="settings-layout">
+            <div class="card setting-section">
+              <div class="setting-title">
+                <div class="setting-symbol">◐</div>
+                <div>
+                  <h2>Appearance</h2>
+                  <p>Choose a comfortable look for your workspace.</p>
+                </div>
+              </div>
+              <div class="setting-line">
+                <span>Color theme</span
+                ><button class="choice-button" (click)="theme()">
+                  {{ dark() ? 'Dark' : 'Light' }} theme ↻
+                </button>
+              </div>
+            </div>
+            <div class="card setting-section">
+              <div class="setting-title">
+                <div class="setting-symbol">⌂</div>
+                <div>
+                  <h2>Your data</h2>
+                  <p>Tasks, habits, and goals are private to your signed-in account.</p>
+                </div>
+              </div>
+              <div class="setting-line">
+                <span>Export a backup</span
+                ><button class="outline-button" (click)="export()">↓ &nbsp; Download JSON</button>
+              </div>
+              <div class="setting-line">
+                <span>Restore from backup</span
+                ><label class="outline-button upload-label"
+                  >↑ &nbsp; Choose JSON<input
+                    type="file"
+                    accept="application/json"
+                    (change)="import($event)"
+                    hidden
+                /></label>
+              </div>
+            </div>
+            <div class="card setting-section">
+              <div class="setting-title">
+                <div class="setting-symbol">⌁</div>
+                <div>
+                  <h2>Quick capture</h2>
+                  <p>Use a keyboard shortcut to add an activity.</p>
+                </div>
+              </div>
+              <div class="setting-line"><span>Open Quick Add</span><kbd>N</kbd></div>
+            </div>
+          </div>
+        }
+        @if (page() === 'weekly') {
+          <div class="greeting-row page-title-row">
+            <div>
+              <div class="eyebrow">PAUSE · NOTICE · BEGIN AGAIN</div>
+              <h1>Your week, in review.</h1>
+              <p class="subtitle">{{ reviewWeekLabel() }} · Progress, not perfection.</p>
+            </div>
+            <button class="primary" (click)="addTask()">＋ Plan a step</button>
+          </div>
+          <div class="weekly-stat-grid">
+            <article class="card weekly-stat">
+              <span class="weekly-stat-icon">✓</span>
+              <div>
+                <small>COMPLETED THIS WEEK</small><b>{{ weeklyCompletedTasks() }}</b
+                ><span>{{ weeklyPlannedTasks() }} activities planned so far</span>
+              </div>
+            </article>
+            <article class="card weekly-stat">
+              <span class="weekly-stat-icon">↗</span>
+              <div>
+                <small>OPEN THIS WEEK</small><b>{{ weeklyOpenTasks() }}</b
+                ><span>Still ahead or in progress</span>
+              </div>
+            </article>
+            <article class="card weekly-stat">
+              <span class="weekly-stat-icon">✳</span>
+              <div>
+                <small>HABIT CHECK-INS</small
+                ><b>{{ weeklyHabitStats().completed }} / {{ weeklyHabitStats().scheduled }}</b
+                ><span>{{ weeklyHabitStats().rate }}% of scheduled check-ins</span>
+              </div>
+            </article>
+            <article class="card weekly-stat">
+              <span class="weekly-stat-icon">◎</span>
+              <div>
+                <small>GOAL STEPS COMPLETED</small><b>{{ weeklyCompletedGoalSteps() }}</b
+                ><span>Small moves toward bigger goals</span>
+              </div>
+            </article>
+          </div>
+          <div class="weekly-review-grid">
+            <article class="card weekly-chart-card">
+              <div class="weekly-section-heading">
+                <div>
+                  <span class="eyebrow">A GENTLE LOOK BACK</span>
+                  <h2>Completed activities</h2>
+                </div>
+                <span class="trend-pill">{{ weeklyCompletedTasks() }} done</span>
+              </div>
+              <div
+                class="review-week-chart"
+                role="img"
+                aria-label="Completed activities for each day this week"
+              >
+                @for (day of reviewWeekDays(); track day.key) {
+                  <div
+                    class="review-day"
+                    [class.review-today]="day.today"
+                    [class.review-future]="day.future"
+                  >
+                    <span class="review-day-count">{{ day.count || ' ' }}</span>
+                    <div class="review-bar-track">
+                      <i [style.height]="reviewBarHeight(day.count)"></i>
+                    </div>
+                    <small>{{ day.label }}</small>
+                  </div>
+                }
+              </div>
+              <div class="weekly-chart-note">
+                Each day is a fresh chance to make a little progress.
+              </div>
+            </article>
+            <article class="card weekly-focus-card">
+              <span class="eyebrow">YOUR NEXT CHAPTER</span>
+              <h2>One focus for next week</h2>
+              <p>What would make next week feel meaningful?</p>
+              <textarea
+                class="field-input weekly-focus-input"
+                rows="4"
+                maxlength="240"
+                placeholder="Keep it simple: one intention, one direction."
+                [value]="weeklyFocus()"
+                (input)="setWeeklyFocus($any($event.target).value)"
+              ></textarea>
+              <div class="weekly-focus-footer">
+                <span>Saved privately on this device</span
+                ><span>{{ weeklyFocus().length }} / 240</span>
+              </div>
+              @if (goals().length) {
+                <div class="weekly-goal-prompt">
+                  <span>Want to move a goal forward?</span
+                  ><button class="text-button" (click)="page.set('goals')">
+                    Review your goals →
+                  </button>
+                </div>
+              }
+            </article>
+          </div>
+          <div class="weekly-closing">
+            <span class="empty-spark">✦</span>
+            <p>You showed up in the ways you could. Carry one small win into the week ahead.</p>
+          </div>
+        }
+      </section>
+      <footer class="footer">
+        <span>✳ LIFE / OS</span><span>Made for a life well lived</span
+        ><span><i class="online-dot"></i> Your data stays yours</span>
+      </footer>
+    </main>
+  </div>
+}
+@if (activeAdhkarReminder()) {
+  <div class="modal-backdrop adhkar-backdrop" (click)="closeAdhkarReminder()">
+    <section
+      class="modal adhkar-modal"
+      role="dialog"
+      aria-modal="true"
+      dir="rtl"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">أَذْكَارٌ مُخْتَارَة</span>
+          <h2>
+            {{ activeAdhkarReminder()?.period === 'morning' ? 'أذكار الصباح' : 'أذكار المساء' }}
+          </h2>
+        </div>
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="إغلاق الأذكار"
+          (click)="closeAdhkarReminder()"
+        >
+          ×
+        </button>
+      </div>
+      <p class="adhkar-intro">اقرأ الأذكار بهدوء، وكرّر كل ذكر بالعدد الموضّح. إغلاق النافذة يخفي تذكير اليوم.</p>
+      <ol class="adhkar-list">
+        @for (dhikr of adhkar; track dhikr.title) {
+          <li>
+            <div class="adhkar-item-heading">
+              <b>{{ dhikr.title }}</b>
+              <span>{{ dhikr.count }}</span>
+            </div>
+            <p>{{ dhikr.text }}</p>
+            <small>{{ dhikr.source }}</small>
+          </li>
+        }
+      </ol>
+      <div class="modal-actions">
+        <button class="primary" type="button" (click)="closeAdhkarReminder()">
+          تم، إغلاق الأذكار
+        </button>
+      </div>
+    </section>
+  </div>
+}
+@if (modal()) {
+  <div class="modal-backdrop" (click)="modal.set('')">
+    <section class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">LIFE / OS</span>
+          <h2>
+            {{
+              modal() === 'task'
+                ? editing()
+                  ? 'Edit task'
+                  : 'New task'
+                : modal() === 'event'
+                  ? editingEvent()
+                    ? 'Edit event'
+                    : 'New event'
+                  : modal() === 'add-choice'
+                    ? 'What would you like to add?'
+                    : modal() === 'reschedule'
+                      ? 'Reschedule task'
+                      : modal() === 'habit'
+                  ? editingHabit()
+                    ? 'Edit routine'
+                    : 'Start a ritual'
+                  : editingGoal()
+                    ? 'Refine your goal'
+                    : 'Set a direction'
+            }}
+          </h2>
+        </div>
+        <button class="icon-button" (click)="modal.set('')">×</button>
+      </div>
+      @if (modal() === 'add-choice') {
+        <div class="add-choice-list">
+          <button class="card add-choice" type="button" (click)="addTask()">
+            <span class="add-choice-icon">☷</span>
+            <span><b>New Task</b><small>An actionable item to complete</small></span>
+            <span>→</span>
+          </button>
+          <button class="card add-choice" type="button" (click)="addEvent()">
+            <span class="add-choice-icon">◷</span>
+            <span><b>New Event</b><small>An appointment at a specific time</small></span>
+            <span>→</span>
+          </button>
+        </div>
+      }
+      @if (modal() === 'reschedule') {
+        <form (submit)="$event.preventDefault(); rescheduleMissedTask()">
+          <p class="subtitle">The original task will stay in its original day’s history.</p>
+          <label class="field-label">New date
+            <input class="field-input" type="date" [min]="todayISO" [value]="rescheduleDate()" (input)="rescheduleDate.set($any($event.target).value)" required />
+          </label>
+          <div class="modal-actions">
+            <button type="button" class="outline-button" (click)="modal.set('')">Cancel</button>
+            <button class="primary" [disabled]="!rescheduleDate()">Create rescheduled task</button>
+          </div>
+        </form>
+      }
+      @if (modal() === 'task') {
+        <form (submit)="$event.preventDefault(); saveTask()">
+          <label class="field-label"
+            >What would you like to do?<input
+              class="field-input"
+              autofocus
+              placeholder="e.g. Review the proposal"
+              [value]="title()"
+              (input)="title.set($any($event.target).value)"
+              required
+          /></label>
+          <label class="field-label">Description
+            <textarea class="field-input" rows="2" [value]="taskDescription()" (input)="taskDescription.set($any($event.target).value)"></textarea>
+          </label>
+          <div class="field-grid">
+            <label class="field-label"
+              >Date<input
+                class="field-input"
+                type="date"
+                [value]="date()"
+                (input)="date.set($any($event.target).value)" /></label
+            ><label class="field-label"
+              >Time<input
+                class="field-input"
+                type="time"
+                [value]="time()"
+                (input)="time.set($any($event.target).value)"
+            /></label>
+          </div>
+          <div class="field-grid">
+            <label class="field-label">Due time<input class="field-input" type="time" [value]="dueTime()" (input)="dueTime.set($any($event.target).value)" /></label>
+            <label class="field-label">Reminder
+              <select class="field-input" [value]="reminderMinutes()" (change)="reminderMinutes.set(+$any($event.target).value)">
+                <option [value]="0">Off</option><option [value]="5">5 minutes before</option><option [value]="15">15 minutes before</option><option [value]="30">30 minutes before</option><option [value]="60">1 hour before</option><option [value]="120">2 hours before</option>
+              </select>
+            </label>
+          </div>
+          @if (editing()) {
+            <label class="field-label">Status
+              <select class="field-input" [value]="taskStatus()" (change)="taskStatus.set($any($event.target).value)">
+                <option value="open">Pending</option><option value="in-progress">In progress</option><option value="done">Completed</option><option value="skipped">Skipped</option>
+              </select>
+            </label>
+          }
+          <div class="field-grid">
+            <label class="field-label"
+              >Priority<select
+                class="field-input"
+                [value]="priority()"
+                (change)="priority.set($any($event.target).value)"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select></label
+            ><label class="field-label"
+              >Category<input
+                class="field-input"
+                placeholder="Personal"
+                [value]="category()"
+                (input)="category.set($any($event.target).value)"
+            /></label>
+          </div>
+          <label class="field-label"
+            >Linked goal
+            <span class="field-hint"
+              >Optional · completed steps add their share to goal progress</span
+            ><select
+              class="field-input"
+              [value]="goalId()"
+              (change)="
+                goalId.set($any($event.target).value);
+                goalContribution.set($any($event.target).value ? 10 : 0)
+              "
+            >
+              <option value="">No linked goal</option>
+              @for (goal of goals(); track goal.id) {
+                <option [value]="goal.id">{{ goal.title }}</option>
+              }
+            </select></label
+          >
+          @if (goalId()) {
+            <div class="goal-contribution-field">
+              <label class="field-label" for="goal-contribution"
+                >Progress added when completed <b>{{ goalContribution() }}%</b></label
+              ><input
+                id="goal-contribution"
+                class="goal-contribution-slider"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                [value]="goalContribution()"
+                (input)="goalContribution.set(+$any($event.target).value)"
+              />
+              <div class="goal-contribution-scale">
+                <span>0%</span
+                ><span>Task completion adds {{ goalContribution() }}% to this goal</span
+                ><span>100%</span>
+              </div>
+            </div>
+          }
+          <div class="modal-actions">
+            <button type="button" class="outline-button" (click)="modal.set('')">Cancel</button
+            ><button class="primary" [disabled]="!title().trim()">Save task</button>
+          </div>
+        </form>
+      }
+      @if (modal() === 'event') {
+        <form (submit)="$event.preventDefault(); saveEvent()">
+          <label class="field-label">Event title
+            <input class="field-input" autofocus [value]="title()" (input)="title.set($any($event.target).value)" placeholder="e.g. Dentist appointment" required />
+          </label>
+          <label class="field-label">Description
+            <textarea class="field-input" rows="2" [value]="desc()" (input)="desc.set($any($event.target).value)"></textarea>
+          </label>
+          <div class="field-grid">
+            <label class="field-label">Date<input class="field-input" type="date" [value]="date()" (input)="date.set($any($event.target).value)" required /></label>
+            <label class="field-label">Location<input class="field-input" [value]="eventLocation()" (input)="eventLocation.set($any($event.target).value)" placeholder="Optional" /></label>
+          </div>
+          <div class="field-grid">
+            <label class="field-label">Start time<input class="field-input" type="time" [value]="time()" (input)="time.set($any($event.target).value)" required /></label>
+            <label class="field-label">End time<input class="field-input" type="time" [value]="eventEndTime()" (input)="eventEndTime.set($any($event.target).value)" /></label>
+          </div>
+          <div class="field-grid">
+            <label class="field-label">Reminder
+              <select class="field-input" [value]="eventReminderMinutes()" (change)="eventReminderMinutes.set(+$any($event.target).value)">
+                <option [value]="0">Off</option><option [value]="5">5 minutes before</option><option [value]="15">15 minutes before</option><option [value]="30">30 minutes before</option><option [value]="60">1 hour before</option><option [value]="120">2 hours before</option>
+              </select>
+            </label>
+            <label class="field-label">Repeat
+              <select class="field-input" [value]="eventRecurrence()" (change)="eventRecurrence.set($any($event.target).value)">
+                <option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option>
+              </select>
+            </label>
+          </div>
+          @if (eventRecurrence() !== 'none') {
+            <label class="field-label">Repeat until (optional)
+              <input class="field-input" type="date" [min]="date()" [value]="eventRecurrenceUntil()" (input)="eventRecurrenceUntil.set($any($event.target).value)" />
+            </label>
+          }
+          <div class="modal-actions">
+            <button type="button" class="outline-button" (click)="modal.set('')">Cancel</button>
+            <button class="primary" [disabled]="!title().trim() || !time()">Save event</button>
+          </div>
+        </form>
+      }
+      @if (modal() === 'habit') {
+        <form (submit)="$event.preventDefault(); saveHabit()">
+          <label class="field-label"
+            >Habit name<input
+              class="field-input"
+              autofocus
+              placeholder="e.g. Read for 15 minutes"
+              [value]="title()"
+              (input)="title.set($any($event.target).value)"
+          /></label>
+          <fieldset class="field-label weekday-field">
+            <legend>Repeat on</legend>
+            <div class="preset-row">
+              <button type="button" class="preset-chip" (click)="setWeekdayPreset('everyday')">
+                Every day</button
+              ><button type="button" class="preset-chip" (click)="setWeekdayPreset('weekdays')">
+                Weekdays</button
+              ><button type="button" class="preset-chip" (click)="setWeekdayPreset('weekends')">
+                Weekends
+              </button>
+            </div>
+            <div class="weekday-picker">
+              @for (day of weekdayOptions; track day.day) {
+                <button
+                  type="button"
+                  class="weekday-chip"
+                  [class.selected]="selectedWeekdays().includes(day.day)"
+                  [attr.aria-pressed]="selectedWeekdays().includes(day.day)"
+                  (click)="toggleWeekday(day.day)"
+                >
+                  {{ day.label }}
+                </button>
+              }
+            </div>
+            @if (!selectedWeekdays().length) {
+              <small class="validation-note">Choose at least one day.</small>
+            }
+          </fieldset>
+          <div class="modal-actions">
+            <button type="button" class="outline-button" (click)="modal.set('')">Cancel</button
+            ><button class="primary" [disabled]="!title().trim() || !selectedWeekdays().length">
+              {{ editingHabit() ? 'Save routine' : 'Create habit' }}
+            </button>
+          </div>
+        </form>
+      }
+      @if (modal() === 'goal') {
+        <form (submit)="$event.preventDefault(); saveGoal()">
+          <label class="field-label"
+            >What are you working toward?<input
+              class="field-input"
+              autofocus
+              placeholder="e.g. Learn conversational Spanish"
+              [value]="title()"
+              (input)="title.set($any($event.target).value)"
+              required /></label
+          ><label class="field-label"
+            >Why does this matter?<textarea
+              class="field-input"
+              rows="3"
+              placeholder="Add a reason, a first step, or a note to future you."
+              [value]="desc()"
+              (input)="desc.set($any($event.target).value)"
+            ></textarea></label
+          ><label class="field-label"
+            >Target date <span class="field-hint">Optional</span
+            ><input
+              class="field-input"
+              type="date"
+              [value]="goalDate()"
+              (input)="goalDate.set($any($event.target).value)"
+          /></label>
+          <div class="modal-actions">
+            <button type="button" class="outline-button" (click)="modal.set('')">Cancel</button
+            ><button class="primary" [disabled]="!title().trim()">
+              {{ editingGoal() ? 'Save changes' : 'Create goal' }}
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+}
+@if (toast() || reminderToast() || quickDhikrToast()) {
+  <div class="toast-stack">
+    @if (toast()) {
+      <div class="toast">✓ &nbsp; {{ toast() }}</div>
+    }
+    @if (reminderToast()) {
+      <aside class="reminder-toast" role="status">
+        <span class="reminder-toast-icon">◷</span>
+        <div>
+          <b>Time for a quick check-in</b>
+          <p>
+            {{ reminderCount() }}
+            {{ reminderCount() === 1 ? 'reminder is' : 'reminders are' }} waiting for you.
+          </p>
+          <button
+            class="reminder-toast-link"
+            (click)="page.set('notifications'); reminderToast.set(false)"
+          >
+            View notifications →
+          </button>
+        </div>
+        <button
+          class="reminder-toast-close"
+          aria-label="Dismiss reminder"
+          (click)="reminderToast.set(false)"
+        >
+          ×
+        </button>
+      </aside>
+    }
+    @if (quickDhikrToast()) {
+      <aside class="dhikr-toast" role="status" dir="rtl">
+        <span class="dhikr-toast-mark" aria-hidden="true">۞</span>
+        <div class="dhikr-toast-content">
+          <b class="dhikr-toast-label">ذَكِّرْ قَلْبَكَ</b>
+          <p>{{ quickDhikrToast() }}</p>
+        </div>
+        <button
+          class="dhikr-toast-close"
+          type="button"
+          aria-label="إغلاق الذكر"
+          (click)="closeQuickDhikrToast()"
+        >
+          ×
+        </button>
+      </aside>
+    }
+  </div>
+}

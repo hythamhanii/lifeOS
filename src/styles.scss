@@ -1,0 +1,2966 @@
+@use './auth.scss';
+
+/* You can add global styles to this file, and also import other style files */
+:root{font-family:Arial,sans-serif;color:#22251f;background:#f7f8f5;font-synthesis:none;text-rendering:optimizeLegibility;font-optical-sizing:auto;font-weight:400;--bg:#f7f8f5;--panel:#fff;--text:#22251f;--muted:#81867e;--line:#e9ebe5;--green:#3f705b;--green-light:#e7f0eb;--lav:#f0edfa}
+*{box-sizing:border-box}body{margin:0;min-width:360px;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #93b8a4;outline-offset:2px}.dark-theme{--bg:#171a18;--panel:#202421;--text:#eef1eb;--muted:#a0a69d;--line:#343a35;--green:#94c2a8;--green-light:#293b30;--lav:#343044}
+
+
+/* Layered depth: soft ambient light, tactile surfaces, and a dimensional focus orb. */
+.main-area{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 82% 3%,rgba(181,205,180,.19),transparent 30%),radial-gradient(ellipse at 12% 54%,rgba(225,220,202,.2),transparent 36%),var(--bg)}
+.main-area::after{content:"";position:fixed;z-index:-1;inset:64px 0 0 244px;pointer-events:none;opacity:.15;background-image:linear-gradient(rgba(72,96,76,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(72,96,76,.08) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 76%)}
+.dark-theme .main-area{background:radial-gradient(ellipse at 83% 0%,rgba(70,113,83,.2),transparent 34%),radial-gradient(ellipse at 12% 56%,rgba(82,72,108,.1),transparent 38%),var(--bg)}
+.dark-theme .main-area::after{opacity:.08}
+.topbar{position:relative;z-index:1;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(16px)}
+.content{position:relative;z-index:1}
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 97%,white),var(--panel) 70%);box-shadow:0 2px 4px rgba(33,49,35,.025),0 12px 28px rgba(33,49,35,.045),inset 0 1px rgba(255,255,255,.8);transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease}
+.dark-theme .card{background:linear-gradient(145deg,#252b27,var(--panel) 72%);box-shadow:0 8px 28px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.035)}
+.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--green) 24%,var(--line));box-shadow:0 4px 8px rgba(33,49,35,.035),0 18px 34px rgba(33,49,35,.075),inset 0 1px rgba(255,255,255,.85)}
+.dark-theme .card:hover{box-shadow:0 14px 34px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05)}
+.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(178,208,182,.22),transparent 42%),linear-gradient(135deg,#fff 0%,#fbfcf8 56%,#f1f6ef 100%)}
+.dark-theme .focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(98,149,112,.2),transparent 42%),linear-gradient(135deg,#252c27,#202421 70%)}
+.focus-card::after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;right:-108px;top:-128px;border:1px solid rgba(91,133,99,.11);box-shadow:0 0 0 18px rgba(91,133,99,.025),0 0 0 38px rgba(91,133,99,.02);pointer-events:none}
+.orb{transform-style:preserve-3d;transform:perspective(500px) rotateX(8deg) rotateY(-10deg);background:radial-gradient(circle at 30% 25%,#c7ddc5 0%,#83ad8a 34%,#547e64 67%,#42674f 100%);box-shadow:inset -9px -12px 18px rgba(32,72,47,.35),inset 5px 5px 14px rgba(255,255,255,.7),0 14px 22px rgba(48,91,58,.2),0 28px 48px rgba(48,91,58,.12);animation:orb-float 6s ease-in-out infinite}
+.orb::before{inset:8px;background:radial-gradient(circle at 34% 25%,#fbfff6 0%,#eff7eb 58%,#d9e8d7 100%);box-shadow:inset -6px -8px 12px rgba(78,115,80,.1),inset 3px 3px 7px rgba(255,255,255,.95)}
+.orb::after{content:"";position:absolute;inset:-5px;border:1px solid rgba(113,156,129,.2);border-radius:50%;transform:translateZ(-10px) rotateX(65deg);box-shadow:0 12px 20px rgba(54,97,64,.12)}
+.orb-core{transform:translateZ(18px);text-shadow:0 1px 0 #fff}
+.dark-theme .orb{background:radial-gradient(circle at 30% 25%,#b7d9b9,#6f9d79 43%,#365b42 100%);box-shadow:inset -9px -12px 18px rgba(12,34,19,.55),inset 5px 5px 14px rgba(255,255,255,.25),0 16px 28px rgba(0,0,0,.35)}
+.dark-theme .orb::before{background:radial-gradient(circle at 35% 25%,#f0f4e9,#cbd9c9 100%)}
+.primary,.icon-button,.nav-item,.check,.outline-button{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease}
+.primary:hover{transform:translateY(-1px);box-shadow:0 7px 15px rgba(50,102,67,.2)}
+.icon-button:hover,.outline-button:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(34,52,38,.08)}
+.nav-item.active{box-shadow:inset 3px 0 var(--green),0 3px 10px rgba(57,102,70,.07)}
+.task-card,.habits-card,.week-card{transform-style:preserve-3d}
+.task-row,.habit-row{transition:background .18s ease,transform .18s ease;padding-left:7px;padding-right:7px;border-radius:7px}
+.task-row:hover,.habit-row:hover{background:color-mix(in srgb,var(--green-light) 45%,transparent);transform:translateX(2px)}
+.check{box-shadow:0 1px 2px rgba(20,40,25,.12),inset 0 1px rgba(255,255,255,.8)}
+.calendar-day{box-shadow:0 2px 4px rgba(35,50,36,.035),inset 0 1px rgba(255,255,255,.75);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.calendar-day:hover{transform:translateY(-2px);box-shadow:0 7px 12px rgba(35,50,36,.09)}
+.calendar-day.muted-day{opacity:.42}
+.modal{box-shadow:0 30px 90px rgba(10,25,14,.28),0 8px 25px rgba(10,25,14,.12);transform:perspective(900px) rotateX(1deg)}
+@keyframes orb-float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@media(max-width:760px){.main-area::after{left:66px}.card:hover{transform:translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){.orb{animation:none}.card,.task-row,.habit-row,.calendar-day,.primary,.icon-button{transition:none}}
+
+/* Soft parchment, sage, and plum theme */
+:root{
+  color-scheme:light;
+  --bg:#eae8df;
+  --panel:#f4f2e9;
+  --text:#30352f;
+  --muted:#6d746a;
+  --line:#d8d8cb;
+  --green:#496b55;
+  --green-light:#e1e9df;
+  --lav:#ece9ef;
+  --bordeaux:#50222d;
+  --silver-dust:#c4c3d0;
+  --accent:#7d3b4b;
+  --event-accent:#7d3b4b;
+  --event-soft:#efe4e8;
+}
+.dark-theme{
+  color-scheme:dark;
+  --bg:#171216;
+  --panel:#241a20;
+  --text:#f4eef1;
+  --muted:#c4c3d0;
+  --line:#493a43;
+  --green:#d99baa;
+  --green-light:#38252e;
+  --lav:#302a36;
+  --bordeaux:#50222d;
+  --silver-dust:#c4c3d0;
+  --accent:#dfa3b1;
+  --event-accent:#dfa3b1;
+  --event-soft:#38252e;
+}
+body{background:var(--bg);color:var(--text)}
+button,input,select{color:inherit}
+.main-area{
+  background:
+    radial-gradient(ellipse at 82% 3%,rgba(158,174,151,.2),transparent 31%),
+    radial-gradient(ellipse at 12% 54%,rgba(144,119,124,.07),transparent 36%),
+    var(--bg)
+}
+
+.card{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 92%,var(--bg)),var(--panel) 75%);
+  box-shadow:0 2px 4px rgba(43,49,41,.025),0 12px 28px rgba(43,49,41,.04),inset 0 1px rgba(255,255,255,.32)
+}
+.focus-card{
+  background:radial-gradient(ellipse at 8% 100%,rgba(159,184,158,.2),transparent 42%),linear-gradient(135deg,#f4f2e9 0%,#f0efe5 58%,#e9ede3 100%)
+}
+.dark-theme .focus-card{
+  background:radial-gradient(ellipse at 8% 100%,rgba(98,149,112,.2),transparent 42%),linear-gradient(135deg,#252c27,#202421 70%)
+}
+.main-area::after{
+  background-image:linear-gradient(rgba(80,34,45,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(80,34,45,.055) 1px,transparent 1px)
+}
+.dark-theme .main-area{
+  background:
+    radial-gradient(ellipse at 83% 0%,rgba(196,195,208,.11),transparent 34%),
+    radial-gradient(ellipse at 12% 56%,rgba(112,46,63,.22),transparent 38%),
+    var(--bg)
+}
+.dark-theme .main-area::after{background-image:linear-gradient(rgba(196,195,208,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(196,195,208,.055) 1px,transparent 1px)}
+.card{border-color:color-mix(in srgb,var(--silver-dust) 38%,var(--line));box-shadow:0 3px 7px rgba(42,22,30,.035),0 13px 30px rgba(42,22,30,.055),inset 0 1px rgba(255,255,255,.82)}
+.dark-theme .card{background:linear-gradient(145deg,#2b2027,#241a20 72%);border-color:#493a43;box-shadow:0 10px 30px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.045)}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 6px 12px rgba(42,22,30,.05),0 19px 36px rgba(42,22,30,.085),inset 0 1px rgba(255,255,255,.85)}
+.dark-theme .card:hover{border-color:#75505e;box-shadow:0 15px 36px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.06)}
+.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(196,195,208,.28),transparent 42%),linear-gradient(135deg,#fff 0%,#fbf9fa 58%,#f0edf1 100%)}
+.dark-theme .focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(112,46,63,.3),transparent 45%),linear-gradient(135deg,#302128,#241a20 72%)}
+.focus-card::after{border-color:rgba(80,34,45,.12);box-shadow:0 0 0 18px rgba(80,34,45,.035),0 0 0 38px rgba(196,195,208,.08)}
+.dark-theme .focus-card::after{border-color:rgba(196,195,208,.16);box-shadow:0 0 0 18px rgba(196,195,208,.035),0 0 0 38px rgba(112,46,63,.1)}
+.primary{background:#50222d;border-color:#50222d;box-shadow:0 4px 12px rgba(80,34,45,.2)}
+.primary:hover{background:#68313e;border-color:#68313e;box-shadow:0 7px 16px rgba(80,34,45,.28)}
+.dark-theme .primary{background:#7b3b4a;border-color:#a96776;color:#fff7f9}
+.dark-theme .primary:hover{background:#965364;border-color:#c0808f}
+.text-button,.subtle-button{color:var(--accent)}
+.trend-pill{color:#50222d;background:#efe4e8}
+.dark-theme .trend-pill{color:#f0bdc8;background:#482d38}
+.soft-tag{color:var(--accent);background:var(--green-light)}
+.orb{
+  background:conic-gradient(from -90deg,#50222d var(--progress),#c4c3d0 var(--progress),#c4c3d0 100%);
+  border:1px solid rgba(80,34,45,.16);
+  box-shadow:inset 0 1px 3px rgba(255,255,255,.65),0 14px 22px rgba(80,34,45,.16),0 28px 48px rgba(80,34,45,.1)
+}
+.orb::before{
+  inset:8px;
+  background:radial-gradient(circle at 34% 25%,#fff 0%,#f3f0f3 58%,#d9d7e0 100%);
+  box-shadow:inset -6px -8px 12px rgba(80,34,45,.1),inset 3px 3px 7px rgba(255,255,255,.98)
+}
+.orb::after{border-color:rgba(80,34,45,.22);box-shadow:0 12px 20px rgba(80,34,45,.14)}
+.orb-core{color:#50222d;text-shadow:none;transform:translateZ(18px)}
+.orb-core strong{font-family:Arial,sans-serif}
+.orb-core span{color:#66525a}
+.dark-theme .orb{
+  background:conic-gradient(from -90deg,#e0a1af var(--progress),#514650 var(--progress),#514650 100%);
+  border-color:rgba(196,195,208,.3);
+  box-shadow:inset 0 1px 4px rgba(255,255,255,.18),0 16px 28px rgba(0,0,0,.38),0 0 28px rgba(112,46,63,.18)
+}
+.dark-theme .orb::before{background:radial-gradient(circle at 34% 25%,#f0eef2 0%,#d9d7e0 60%,#bdbbc8 100%);box-shadow:inset -6px -8px 12px rgba(80,34,45,.18),inset 3px 3px 7px rgba(255,255,255,.75)}
+.dark-theme .orb::after{border-color:rgba(196,195,208,.32);box-shadow:0 12px 20px rgba(0,0,0,.28)}
+.dark-theme .orb-core{color:#50222d}
+.progress-track span,.bar-track span.today-bar,.analytics-track i,.legend-dot{background:linear-gradient(135deg,#50222d,#9a5b6a)}
+.dark-theme .progress-track span,.dark-theme .bar-track span.today-bar,.dark-theme .analytics-track i,.dark-theme .legend-dot{background:linear-gradient(135deg,#bd7a89,#e3aab6)}
+.bar-track span{background:#c4c3d0}
+.dark-theme .bar-track span{background:#544751}
+.habit-emoji,.goal-icon,.setting-symbol{background:#f0e9ed;color:#713b4b}
+.dark-theme .habit-emoji,.dark-theme .goal-icon,.dark-theme .setting-symbol{background:#3a2932;color:#e1a9b5}
+.insight-card{background:#f0e9ed;color:#50222d}
+.dark-theme .insight-card{background:#38252e;color:#ead7dd}
+.local-indicator,.online-dot{color:var(--accent)}
+.priority{background:#f2edf0;color:#74616a}
+.priority.high{color:#9a4051;background:#f7e7eb}
+.priority.low{color:#6e6470;background:#eeedf1}
+.dark-theme .priority{background:#3b3038;color:#d4cbd0}
+.dark-theme .priority.high{color:#ef9fac;background:#4b2b36}
+.dark-theme .priority.low{color:#c4c3d0;background:#35303b}
+.modal-backdrop{background:rgba(35,17,25,.62)}
+.toast{background:#50222d;color:#fff}
+.weekday-field{border:0;padding:0;margin:16px 0 12px}
+.weekday-field legend{font-size:11px;font-weight:700;color:var(--text);margin-bottom:10px}
+.preset-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.preset-chip,.weekday-chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:8px;padding:8px 11px;font-size:10px;transition:all .16s ease}
+.preset-chip:hover,.weekday-chip:hover{border-color:var(--accent);color:var(--accent)}
+.weekday-picker{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.weekday-chip{min-height:39px;padding:8px 3px;font-weight:650}
+.weekday-chip.selected{background:#50222d;border-color:#50222d;color:#fff;box-shadow:0 4px 10px rgba(80,34,45,.2)}
+.dark-theme .weekday-chip.selected{background:#a65e70;border-color:#c98696;color:#fff;box-shadow:0 4px 13px rgba(0,0,0,.28)}
+.validation-note{display:block;margin-top:8px;color:#a43d4c;font-size:10px}
+.habit-check:disabled{opacity:.34;cursor:not-allowed;box-shadow:none}
+.routine-edit{padding:6px 8px}
+.day-actions{display:flex;align-items:center;gap:8px}
+.day-date-input{height:36px;max-width:170px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font:600 11px Arial,sans-serif}
+.day-summary{display:flex;align-items:center;justify-content:space-between;gap:26px;padding:22px 25px;background:radial-gradient(ellipse at 7% 100%,rgba(196,195,208,.2),transparent 42%),linear-gradient(130deg,var(--panel),color-mix(in srgb,var(--panel) 88%,var(--silver-dust)))}
+.dark-theme .day-summary{background:radial-gradient(ellipse at 7% 100%,rgba(112,46,63,.25),transparent 45%),linear-gradient(130deg,#2b2027,#241a20)}
+.day-summary h2{font:700 17px Arial,sans-serif;margin:8px 0 5px}
+.day-summary p{margin:0;color:var(--muted);font-size:11px}
+.day-summary-progress{width:170px;flex:none}
+.day-summary-progress strong{display:block;color:var(--bordeaux);font:700 25px Arial,sans-serif;margin-bottom:8px}
+.day-summary-progress strong small{font-size:13px}
+.dark-theme .day-summary-progress strong{color:#e0a1af}
+.day-summary-progress>small{display:block;color:var(--muted);font-size:9px;margin-top:7px}
+.day-timeline{padding:8px 22px}
+.timeline-row{display:grid;grid-template-columns:76px 20px minmax(0,1fr);gap:8px;min-height:76px}
+.timeline-time{padding:20px 4px 0 0;text-align:right;color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums}
+.timeline-rail{position:relative;display:flex;justify-content:center}
+.timeline-rail::before{content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.timeline-row:first-child .timeline-rail::before{top:22px}
+.timeline-row:last-child .timeline-rail::before{bottom:calc(100% - 24px)}
+.timeline-rail span{position:relative;z-index:1;margin-top:20px;width:9px;height:9px;border:2px solid var(--silver-dust);border-radius:50%;background:var(--panel)}
+.timeline-rail span.done-rail{border-color:#50222d;background:#50222d;box-shadow:0 0 0 3px rgba(80,34,45,.12)}
+.dark-theme .timeline-rail span.done-rail{border-color:#d99baa;background:#d99baa;box-shadow:0 0 0 3px rgba(217,155,170,.16)}
+.timeline-task{min-width:0;display:flex;align-items:center;gap:9px;padding:10px 4px 10px 7px;border-bottom:1px solid var(--line)}
+.timeline-row:last-child .timeline-task{border-bottom:0}
+.timeline-task .task-info{padding:5px 0}
+.timeline-task .task-info b{font-size:12px}
+.timeline-task .task-info small{display:flex;align-items:center;gap:5px}
+.timeline-task .priority{padding:3px 7px}
+.timeline-task .row-menu,.timeline-task .delete-button{flex:none}
+.day-timeline .empty-inline{padding:44px 12px}
+@media(max-width:480px){.weekday-picker{gap:4px}.weekday-chip{font-size:9px}}
+@media(max-width:650px){.day-actions{flex-wrap:wrap;justify-content:flex-end}.day-date-input{order:-1;width:100%;max-width:none}.day-summary{align-items:flex-start;flex-direction:column;gap:15px}.day-summary-progress{width:100%}.timeline-row{grid-template-columns:59px 16px minmax(0,1fr);gap:5px}.day-timeline{padding:7px 10px}.timeline-task{gap:3px;padding-left:2px}.timeline-task .row-menu{font-size:15px}}
+@property --progress{syntax:"<percentage>";inherits:false;initial-value:0%}
+.bar-track span{transition:height 720ms cubic-bezier(.2,.75,.25,1),background-color .3s ease}
+.bar-value{height:10px;color:var(--muted);font:600 8px/10px Arial,sans-serif}
+.bar-col{gap:4px}
+.bar-track span.today-bar{box-shadow:inset 0 1px rgba(255,255,255,.45),0 3px 8px rgba(80,34,45,.16)}
+.dark-theme .bar-track span.today-bar{box-shadow:inset 0 1px rgba(255,255,255,.24),0 3px 10px rgba(0,0,0,.22)}
+@media(prefers-reduced-motion:reduce){.orb{animation:none}}
+
+:root{
+  --font-sans:"Segoe UI Variable","Segoe UI",Roboto,"Noto Sans",system-ui,sans-serif;
+  font-family:var(--font-sans);
+}
+app-root{font-family:var(--font-sans);font-size:16px!important}
+app-root *{font-family:var(--font-sans)!important}
+.greeting-row h1{font-size:34px!important;line-height:1.2}
+.card-heading h2,.section-head h2,.calendar-card h2{font-size:18px!important}
+.subtitle{font-size:14px!important;line-height:1.65}
+.eyebrow,.workspace-label{font-size:11px!important}
+.nav-item{font-size:14px!important}
+.crumb{font-size:13px!important}
+.date-chip{font-size:12px!important}
+.primary,.text-button{font-size:13px!important}
+.focus-copy h3{font-size:15px!important}
+.focus-copy p{font-size:13px!important}
+.task-list-head{font-size:11px!important}
+.task-info b,.timeline-task .task-info b{font-size:13px!important}
+.task-info small,.streak,.timeline-time,.chart-foot,.bar-col small{font-size:11px!important}
+.local-badge b,.profile b{font-size:12px!important}
+.local-badge small,.profile small{font-size:11px!important}
+.day-date-input,.modal input,.modal select,.modal textarea{font-size:14px!important}
+.day-summary h2{font-size:19px!important}
+.day-summary p{font-size:13px!important}
+@media(max-width:760px){.greeting-row h1{font-size:30px!important}}
+
+body{min-width:320px}
+.subtitle,.day-summary p,.focus-copy p,.goal-card p,.chart-note{line-height:1.7}
+@media(min-width:761px) and (max-width:920px){
+  .hero-grid,.plan-grid{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(max-width:760px){
+  .footer{font-size:11px}
+  .sidebar .nav-item{font-size:10px!important}
+  .priority{font-size:10px!important}
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  app-root .shell .sidebar {
+    width: 208px;
+  }
+
+  app-root .shell .main-area {
+    margin-left: 208px;
+  }
+
+  app-root .shell .topbar,
+  app-root .shell .content {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  app-root .shell {
+    min-height: 100vh;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  app-root .shell .sidebar {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    height: calc(104px + env(safe-area-inset-bottom));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border: 0;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(27, 38, 29, .1);
+    z-index: 20;
+  }
+
+  app-root .shell .sidebar > .brand,
+  app-root .shell .sidebar > .workspace-label,
+  app-root .shell .sidebar-bottom {
+    display: none;
+  }
+
+  app-root .shell .sidebar nav {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 2px 4px;
+  }
+
+  app-root .shell .sidebar .nav-item {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 3px 1px;
+    overflow: hidden;
+    border-radius: 8px;
+    font-size: 10px !important;
+    line-height: 1.15;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  app-root .shell .sidebar .nav-icon {
+    width: auto;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  app-root .shell .sidebar .nav-count {
+    position: absolute;
+    top: 1px;
+    right: max(8px, calc(50% - 25px));
+    margin: 0;
+    padding: 1px 4px;
+    font-size: 9px;
+  }
+
+  app-root .shell .main-area {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    overflow: clip;
+  }
+
+  app-root .shell .topbar {
+    min-width: 0;
+    height: 58px;
+    padding: 0 16px;
+  }
+
+  app-root .shell .crumb {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  app-root .shell .top-actions {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  app-root .shell .content {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 26px 18px 24px;
+  }
+
+  app-root .shell .hero-grid,
+  app-root .shell .plan-grid,
+  app-root .shell .goal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  app-root .shell .stats-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  app-root .shell .footer {
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+  }
+}
+
+app-root .week-card {
+  border-color: color-mix(in srgb, var(--line) 78%, var(--green));
+}
+
+app-root .week-bars {
+  height: 142px;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 14px 5px 0;
+}
+
+app-root .bar-col {
+  position: relative;
+  min-width: 0;
+  gap: 7px;
+  padding: 5px 3px 4px;
+  border-radius: 9px;
+  transition: background-color .16s ease;
+}
+
+app-root .bar-col.current-day {
+  background: color-mix(in srgb, var(--green-light) 68%, transparent);
+}
+
+app-root .bar-value {
+  height: 12px;
+  color: var(--muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  line-height: 12px;
+}
+
+app-root .bar-track {
+  position: relative;
+  height: 91px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: repeating-linear-gradient(to top, transparent 0, transparent 29px, var(--line) 30px, transparent 31px);
+}
+
+app-root .bar-track span {
+  position: relative;
+  z-index: 1;
+  width: min(58%, 24px);
+  min-height: 0;
+  border-radius: 6px 6px 3px 3px;
+  background: color-mix(in srgb, var(--green) 26%, var(--line));
+  transition: height .24s ease-out, background-color .18s ease;
+}
+
+app-root .bar-track span.today-bar {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--green) 72%, white), var(--green));
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--green) 20%, transparent);
+}
+
+app-root .bar-col small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 550;
+}
+
+app-root .bar-col.current-day small {
+  color: var(--green);
+  font-weight: 700;
+}
+
+app-root .card {
+  transition: box-shadow .18s ease, border-color .18s ease;
+}
+
+app-root .card:hover {
+  transform: none;
+}
+
+app-root .task-row:hover,
+app-root .habit-row:hover {
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  app-root .week-bars {
+    gap: 5px;
+    padding-inline: 1px;
+  }
+
+  app-root .bar-col {
+    padding-inline: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-root .bar-col,
+  app-root .bar-track span {
+    transition: none;
+  }
+}
+
+@media (max-width: 420px) {
+  app-root .shell .topbar {
+    padding-inline: 12px;
+  }
+
+  app-root .shell .content {
+    padding-inline: 14px;
+  }
+
+  app-root .shell .greeting-row {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  app-root .shell .greeting-row h1 {
+    font-size: 27px !important;
+  }
+
+  app-root .shell .greeting-row > .primary {
+    flex: 0 0 auto;
+    max-width: 120px;
+    white-space: normal;
+  }
+
+  app-root .shell .focus-card,
+  app-root .shell .week-card {
+    padding: 18px 16px;
+  }
+
+  app-root .shell .focus-body {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  app-root .shell .orb {
+    width: 88px;
+    height: 88px;
+  }
+
+  app-root .shell .orb-core strong {
+    font-size: 24px;
+  }
+
+  app-root .shell .stats-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  app-root .shell .sidebar .nav-item {
+    font-size: 10px !important;
+  }
+}
+
+app-root .calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+app-root .calendar-toolbar h2 {
+  margin-top: 6px;
+  font-size: 20px;
+}
+
+app-root .calendar-controls,
+app-root .calendar-agenda-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+app-root .calendar-controls .outline-button {
+  min-height: 34px;
+}
+
+app-root .calendar-day {
+  position: relative;
+  min-height: 66px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px;
+  font-weight: 500;
+}
+
+app-root .calendar-day.is-today:not(.selected-day) {
+  border-color: color-mix(in srgb, var(--green) 38%, transparent);
+  color: var(--green);
+  font-weight: 700;
+}
+
+app-root .calendar-day.selected-day,
+app-root .calendar-day.selected-day.is-today {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 5px 13px color-mix(in srgb, var(--green) 25%, transparent);
+  opacity: 1;
+}
+
+app-root .calendar-day.selected-day .calendar-dot {
+  background: #fff;
+}
+
+app-root .calendar-day.muted-day {
+  background: transparent;
+}
+
+app-root .calendar-day.muted-day.selected-day {
+  background: var(--green);
+}
+
+app-root .calendar-grid {
+  gap: 7px;
+}
+
+app-root .calendar-agenda {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 2px;
+}
+
+app-root .calendar-agenda .section-head {
+  align-items: center;
+  margin-top: 18px;
+}
+
+app-root .calendar-agenda .section-head h2 {
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+app-root .notification-intro {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 20px 24px;
+}
+
+app-root .notification-bell,
+app-root .notification-icon {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 18px;
+}
+
+app-root .notification-intro b,
+app-root .notification-copy b {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+app-root .notification-intro p,
+app-root .notification-copy p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+app-root .notification-list {
+  padding: 8px 20px;
+}
+
+app-root .notification-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  padding: 16px 4px;
+}
+
+app-root .notification-item:last-child {
+  border-bottom: 0;
+}
+
+app-root .reminder-adhkar .notification-icon {
+  background: #e9eee8;
+  color: #607767;
+}
+
+app-root .reminder-adhkar .notification-copy b {
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+app-root .notification-icon {
+  flex-basis: 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+app-root .reminder-overdue .notification-icon {
+  background: #f8ebea;
+  color: #b2625a;
+}
+
+app-root .reminder-end-of-day .notification-icon {
+  background: #f1eff8;
+  color: #80749f;
+}
+
+app-root .notification-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+app-root .notification-copy small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+app-root .reminder-toast {
+  position: fixed;
+  z-index: 20;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 17px;
+  border: 1px solid color-mix(in srgb, var(--green) 25%, var(--line));
+  border-radius: 13px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 14px 40px #1c2b2133;
+  animation: rise .2s ease-out;
+}
+
+app-root .reminder-toast-icon {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 17px;
+}
+
+app-root .reminder-toast b {
+  font-size: 12px;
+}
+
+app-root .reminder-toast p {
+  margin: 5px 0 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+app-root .reminder-toast-link,
+app-root .reminder-toast-close {
+  border: 0;
+  background: transparent;
+  color: var(--green);
+}
+
+app-root .reminder-toast-link {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+app-root .reminder-toast-close {
+  margin: -5px -5px 0 auto;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+app-root .toast-stack {
+  position: fixed;
+  z-index: 20;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 10px;
+  width: min(390px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+app-root .toast-stack > * {
+  position: relative;
+  inset: auto;
+  pointer-events: auto;
+}
+
+app-root .toast-stack .toast,
+app-root .toast-stack .reminder-toast,
+app-root .toast-stack .dhikr-toast {
+  right: auto;
+  bottom: auto;
+  max-width: 100%;
+}
+
+app-root .dhikr-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: max-content;
+  min-width: min(310px, 100%);
+  padding: 16px 17px;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 14px 40px #1c2b2140;
+  animation: rise .2s ease-out;
+}
+
+app-root .dhikr-toast-mark {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 11%, var(--panel));
+  color: var(--accent);
+  font-size: 19px;
+}
+
+app-root .dhikr-toast-content {
+  min-width: 0;
+  flex: 1;
+}
+
+app-root .dhikr-toast-label {
+  display: block;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+app-root .dhikr-toast-content p {
+  margin: 6px 0 0;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+app-root .dhikr-toast-close {
+  flex: 0 0 auto;
+  margin: -4px -5px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+app-root .adhkar-backdrop {
+  z-index: 1100;
+}
+
+app-root .adhkar-modal {
+  width: min(620px, calc(100vw - 32px));
+  max-height: min(82vh, 760px);
+  overflow: auto;
+  transform: none;
+}
+
+app-root .adhkar-modal .modal-head h2 {
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+app-root .adhkar-intro {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+app-root .adhkar-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+app-root .adhkar-list li {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--green-light) 32%, var(--panel));
+}
+
+app-root .adhkar-item-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+app-root .adhkar-item-heading b {
+  color: var(--green);
+  font-size: 12px;
+}
+
+app-root .adhkar-item-heading span {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border: 1px solid color-mix(in srgb, var(--green) 35%, var(--line));
+  border-radius: 20px;
+  color: var(--green);
+  font-size: 10px;
+}
+
+app-root .adhkar-list li p {
+  margin: 9px 0 6px;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 2;
+}
+
+app-root .adhkar-list li small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 600px) {
+  app-root .adhkar-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+app-root .adhkar-modal .modal-actions {
+  justify-content: flex-start;
+  margin-top: 18px;
+}
+
+app-root .timer-scene {
+  position: relative;
+  display: grid;
+  min-height: min(640px, calc(100vh - 230px));
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid #665b43;
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 50% 46%, rgba(194, 160, 101, .19), transparent 38%),
+    radial-gradient(ellipse at 16% 90%, rgba(94, 125, 102, .2), transparent 36%),
+    linear-gradient(150deg, #1d2925, #27342d 48%, #19241f);
+  box-shadow:
+    0 24px 58px rgba(31, 39, 31, .2),
+    inset 0 1px rgba(255, 246, 220, .16),
+    inset 0 -18px 36px rgba(7, 16, 12, .23);
+  color: #f5ebd7;
+  perspective: 1100px;
+}
+
+app-root .timer-scene::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(210, 183, 126, .22);
+  border-radius: 19px;
+  box-shadow: inset 0 0 0 5px rgba(24, 35, 29, .45), inset 0 0 0 6px rgba(210, 183, 126, .1);
+  content: "";
+  pointer-events: none;
+}
+
+app-root .timer-scene::after {
+  position: absolute;
+  right: 7%;
+  bottom: -180px;
+  width: 430px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(15, 23, 18, .24);
+  filter: blur(35px);
+  content: "";
+  pointer-events: none;
+}
+
+app-root .timer-stage {
+  position: relative;
+  display: grid;
+  width: min(640px, 94%);
+  min-height: 490px;
+  place-items: center;
+  transform: rotateX(5deg);
+  transform-style: preserve-3d;
+}
+
+app-root .timer-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: .7;
+  pointer-events: none;
+}
+
+app-root .timer-stars i {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: #e6ca8b;
+  box-shadow: 0 0 7px 1px rgba(229, 194, 121, .38);
+  animation: timer-twinkle 4.5s ease-in-out infinite alternate;
+}
+
+app-root .timer-dial {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 318px;
+  height: 318px;
+  border: 1px solid rgba(209, 178, 113, .38);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 25%, rgba(210, 181, 121, .18), transparent 48%),
+    linear-gradient(145deg, #344239, #202c26 72%);
+  box-shadow:
+    0 25px 28px rgba(5, 13, 9, .45),
+    0 0 0 7px #26332c,
+    0 0 0 9px rgba(190, 156, 95, .53),
+    0 0 0 15px rgba(17, 26, 21, .82),
+    0 0 0 16px rgba(190, 156, 95, .25),
+    inset 0 2px 6px rgba(245, 231, 195, .2),
+    inset 0 -10px 24px rgba(4, 12, 8, .45);
+  transform: translate(-50%, -50%) translateZ(8px);
+  transform-style: preserve-3d;
+}
+
+app-root .timer-dial::before,
+app-root .timer-dial::after {
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(210, 181, 121, .15);
+  border-radius: 50%;
+  content: "";
+}
+
+app-root .timer-dial::after {
+  inset: 31px;
+  border-color: rgba(210, 181, 121, .09);
+}
+
+app-root .timer-dial .dial-inner {
+  position: absolute;
+  inset: 43px;
+  border: 1px solid rgba(210, 181, 121, .12);
+  border-radius: 50%;
+  box-shadow: inset 0 0 22px rgba(11, 19, 14, .2);
+}
+
+app-root .timer-dial i {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 7px;
+  transform-origin: 1px 0;
+  transform: rotate(var(--tick-angle)) translateY(-142px);
+  background: #bca46e;
+  opacity: .72;
+}
+
+app-root .timer-dial i.major {
+  width: 3px;
+  height: 12px;
+  background: #e0c58b;
+}
+
+app-root .timer-dial .dial-pivot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #d5b875;
+  border-radius: 50%;
+  background: #24332b;
+  box-shadow: 0 0 0 3px rgba(10, 17, 13, .45);
+  transform: translate(-50%, -50%);
+}
+
+app-root .timer-console {
+  position: relative;
+  z-index: 2;
+  width: min(470px, 88%);
+  padding: 18px 25px 15px;
+  border: 1px solid #bca66e;
+  border-radius: 17px;
+  background:
+    linear-gradient(145deg, rgba(247, 235, 206, .1), transparent 40%),
+    linear-gradient(155deg, #34433a, #26352d 58%, #1f2c25);
+  box-shadow:
+    0 26px 24px rgba(5, 13, 9, .42),
+    0 8px 0 #18231d,
+    0 9px 0 1px #8e784d,
+    0 16px 30px rgba(8, 15, 10, .38),
+    inset 0 1px rgba(255, 247, 222, .22),
+    inset 0 -2px 5px rgba(4, 12, 8, .36);
+  transform: translateZ(38px);
+  transform-style: preserve-3d;
+}
+
+app-root .timer-console-top,
+app-root .timer-console-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #c4ae79;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+app-root .timer-console-top {
+  padding: 0 2px 12px;
+  border-bottom: 1px solid rgba(193, 167, 107, .25);
+}
+
+app-root .timer-console-bottom {
+  padding: 12px 2px 0;
+  border-top: 1px solid rgba(193, 167, 107, .25);
+  color: #ad9b73;
+  font-size: 7px;
+  letter-spacing: 1.8px;
+}
+
+app-root .console-light {
+  width: 6px;
+  height: 6px;
+  border: 1px solid #d9c48e;
+  border-radius: 50%;
+  background: #9c8351;
+  box-shadow: 0 0 7px rgba(219, 194, 132, .6), inset 0 1px rgba(255, 246, 215, .8);
+}
+
+app-root .timer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 8px 20px;
+  text-align: center;
+}
+
+app-root .timer-kicker {
+  color: #c9b786;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+app-root .stopwatch-display {
+  margin-top: 12px;
+  color: #f0dfb8;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(48px, 9vw, 76px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: .045em;
+  line-height: 1.05;
+  text-shadow: 0 2px 0 #19241e, 0 5px 16px rgba(0, 0, 0, .45), 0 0 24px rgba(223, 195, 133, .18);
+}
+
+app-root .timer-caption {
+  margin: 10px 0 20px;
+  color: #c4c5b3;
+  font-size: 13px;
+}
+
+app-root .stopwatch-controls {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+app-root .timer-start,
+app-root .timer-reset {
+  min-width: 108px;
+  padding: 11px 20px;
+  border: 1px solid rgba(214, 188, 126, .52);
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 650;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, color .18s ease;
+}
+
+app-root .timer-start {
+  border-color: #d3b777;
+  background: linear-gradient(180deg, #e0c98e, #b99758);
+  color: #263128;
+  box-shadow: 0 3px 0 #79643d, inset 0 1px rgba(255, 247, 221, .65);
+}
+
+app-root .timer-reset {
+  background: linear-gradient(180deg, rgba(249, 238, 209, .09), rgba(20, 31, 24, .12));
+  color: #e9dcc0;
+  box-shadow: 0 3px 0 rgba(12, 20, 15, .55), inset 0 1px rgba(255,255,255,.08);
+}
+
+app-root .timer-start:hover,
+app-root .timer-reset:not(:disabled):hover {
+  transform: none;
+  box-shadow: 0 3px 0 rgba(12, 20, 15, .55), inset 0 1px rgba(255,255,255,.08);
+}
+
+app-root .timer-reset:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+app-root .timer-footnote {
+  display: none;
+}
+
+@keyframes timer-twinkle {
+  from { opacity: .18; transform: scale(.75); }
+  to { opacity: .82; transform: scale(1.35); }
+}
+
+@media (max-width: 600px) {
+  app-root .calendar-day {
+    min-height: 48px;
+    padding: 7px;
+  }
+
+  app-root .calendar-grid {
+    gap: 4px;
+  }
+
+  app-root .calendar-card {
+    padding: 16px;
+  }
+
+  app-root .calendar-toolbar {
+    align-items: flex-start;
+  }
+
+  app-root .notification-item {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  app-root .notification-item .subtle-button {
+    padding-right: 0;
+  }
+
+  app-root .toast-stack {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  app-root .timer-scene {
+    min-height: 490px;
+  }
+
+  app-root .timer-stage {
+    min-height: 440px;
+  }
+
+  app-root .timer-dial {
+    width: 270px;
+    height: 270px;
+  }
+
+  app-root .timer-dial i {
+    transform: rotate(var(--tick-angle)) translateY(-120px);
+  }
+
+  app-root .timer-console {
+    width: min(420px, 92%);
+    padding: 15px 15px 13px;
+  }
+
+  app-root .timer-console-top,
+  app-root .timer-console-bottom {
+    letter-spacing: 1px;
+  }
+
+  app-root .timer-content {
+    padding-inline: 0;
+  }
+}
+
+app-root .timer-scene {
+  min-height: min(590px, calc(100vh - 230px));
+  padding: 48px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  perspective: none;
+}
+
+app-root .timer-scene::before {
+  display: none;
+}
+
+app-root .timer-scene::after {
+  display: none;
+}
+
+app-root .timer-console {
+  width: min(560px, 100%);
+  padding: 20px;
+  border: 1px solid #c8bec0;
+  border-radius: 20px;
+  background: linear-gradient(155deg, #f3f0e9, #e4e0d9);
+  box-shadow:
+    0 28px 34px rgba(58, 39, 45, .16),
+    0 8px 0 #c6bec0,
+    0 10px 0 1px #b4a9ad,
+    0 18px 26px rgba(58, 39, 45, .12),
+    inset 0 2px rgba(255,255,255,.9),
+    inset 0 -2px rgba(119, 96, 101, .12);
+  transform: none;
+  transition: box-shadow .25s ease;
+}
+
+app-root .timer-console:hover {
+  box-shadow:
+    0 32px 38px rgba(58, 39, 45, .18),
+    0 8px 0 #c6bec0,
+    0 10px 0 1px #b4a9ad,
+    0 22px 30px rgba(58, 39, 45, .14),
+    inset 0 2px rgba(255,255,255,.9),
+    inset 0 -2px rgba(119, 96, 101, .12);
+}
+
+app-root .timer-console-top,
+app-root .timer-console-bottom {
+  color: #76656b;
+}
+
+app-root .timer-console-top {
+  padding: 0 3px 15px;
+  border-color: #d3c9c8;
+}
+
+app-root .timer-console-bottom {
+  padding: 15px 3px 0;
+  border-color: #d3c9c8;
+}
+
+app-root .timer-device-state {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+app-root .console-light {
+  width: 7px;
+  height: 7px;
+  border-color: #987b63;
+  background: #b7a16e;
+  box-shadow: inset 0 1px rgba(255,255,255,.6);
+}
+
+app-root .console-light.running {
+  border-color: #783846;
+  background: #9c5261;
+  box-shadow: 0 0 9px rgba(128, 57, 72, .45);
+}
+
+app-root .timer-screen {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: clamp(24px, 5vh, 48px) 0 30px;
+  padding: 8px 0;
+}
+
+app-root .screen-label {
+  color: #c4aeb3;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+}
+
+app-root .stopwatch-display {
+  margin-top: 18px;
+  color: #f0e6d9;
+  font-family: "Courier New", monospace;
+  font-size: clamp(88px, 13vw, 176px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: .045em;
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(239, 213, 192, .19), 0 2px rgba(15, 8, 10, .55);
+}
+
+app-root .stopwatch-milliseconds {
+  display: inline-block;
+  margin-left: .08em;
+  font-size: .38em;
+  font-weight: 400;
+  letter-spacing: .01em;
+  vertical-align: .28em;
+  opacity: .72;
+}
+
+app-root .screen-state {
+  margin-top: 13px;
+  color: #c9b8b6;
+  font-size: 11px;
+}
+
+app-root .stopwatch-controls {
+  justify-content: center;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+app-root .timer-start,
+app-root .timer-reset {
+  min-width: 126px;
+  padding: 12px 24px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+app-root .timer-start {
+  border-color: #50222d;
+  background: linear-gradient(180deg, #693744, #50222d);
+  color: #fff8f4;
+  box-shadow: 0 4px 0 #391820, inset 0 1px rgba(255,255,255,.2);
+}
+
+app-root .timer-start:hover {
+  background: linear-gradient(180deg, #5b2935, #451c26);
+}
+
+app-root .timer-reset {
+  border-color: #c5b9bc;
+  background: linear-gradient(180deg, #f5f2ec, #e4dfd9);
+  color: #55464b;
+  box-shadow: 0 4px 0 #c0b7b8, inset 0 1px rgba(255,255,255,.95);
+}
+
+app-root .timer-reset:not(:disabled):hover {
+  background: #d8d1cc;
+  border-color: #b9afb1;
+}
+
+html.dark-theme app-root .timer-scene {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.dark-theme app-root .timer-console {
+  border-color: #59434b;
+  background: linear-gradient(155deg, #382a31, #2a2026);
+  box-shadow:
+    0 28px 34px rgba(0,0,0,.32),
+    0 8px 0 #241a20,
+    0 10px 0 1px #49353d,
+    0 18px 26px rgba(0,0,0,.2),
+    inset 0 2px rgba(255,255,255,.08),
+    inset 0 -2px rgba(0,0,0,.15);
+}
+
+html.dark-theme app-root .timer-console-top,
+html.dark-theme app-root .timer-console-bottom {
+  border-color: #514048;
+  color: #c4aeb3;
+}
+
+html.dark-theme app-root .timer-screen {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html.dark-theme app-root .timer-start {
+  border-color: #a96776;
+  background: linear-gradient(180deg, #965364, #713644);
+  color: #fff7f9;
+  box-shadow: 0 4px 0 #4b2932, inset 0 1px rgba(255,255,255,.16);
+}
+
+html.dark-theme app-root .timer-start:hover {
+  background: linear-gradient(180deg, #713644, #572630);
+}
+
+html.dark-theme app-root .timer-reset {
+  border-color: #5a4850;
+  background: linear-gradient(180deg, #41323a, #33262d);
+  color: #eee1e5;
+  box-shadow: 0 4px 0 #21191e, inset 0 1px rgba(255,255,255,.08);
+}
+
+html.dark-theme app-root .timer-reset:not(:disabled):hover {
+  background: #382831;
+  border-color: #6a535c;
+}
+
+@media (max-width: 600px) {
+  app-root .timer-scene {
+    min-height: 440px;
+    padding: 24px 12px;
+  }
+
+  app-root .timer-console {
+    padding: 16px;
+  }
+
+  app-root .timer-screen {
+    margin: 20px 0 24px;
+    padding-inline: 0;
+  }
+
+  app-root .timer-start,
+  app-root .timer-reset {
+    min-width: 112px;
+    padding-inline: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-root .timer-console,
+  app-root .timer-start,
+  app-root .timer-reset {
+    transition: none;
+  }
+}
+
+app-root .content.timer-page-content {
+  max-width: 1480px;
+  padding: 22px clamp(24px, 4vw, 64px) 20px;
+}
+
+app-root .timer-page-content .timer-heading {
+  flex: 0 0 auto;
+  margin-bottom: 16px;
+}
+
+app-root .timer-page-content .timer-scene {
+  flex: 1 0 auto;
+  min-height: max(480px, calc(100vh - 285px));
+  padding: 0;
+}
+
+app-root .timer-page-content .timer-console {
+  width: min(1120px, 100%);
+  padding: clamp(26px, 3vw, 42px);
+  border-radius: 24px;
+}
+
+app-root .timer-page-content .timer-console-top {
+  padding: 0 5px 18px;
+  font-size: 10px;
+}
+
+app-root .timer-page-content .timer-screen {
+  min-height: clamp(300px, 42vh, 430px);
+  margin: clamp(24px, 4vh, 38px) 0 30px;
+}
+
+app-root .timer-page-content .stopwatch-display {
+  font-size: clamp(92px, 13vw, 176px);
+}
+
+app-root .timer-page-content .screen-label {
+  font-size: 11px;
+}
+
+app-root .timer-page-content .screen-state {
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+app-root .timer-page-content .stopwatch-controls {
+  gap: 18px;
+}
+
+app-root .timer-page-content .timer-start,
+app-root .timer-page-content .timer-reset {
+  min-width: 156px;
+  padding: 15px 32px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+app-root .timer-page-content .timer-console-bottom {
+  padding: 19px 5px 2px;
+  font-size: 9px;
+}
+
+@media (max-width: 760px) {
+  app-root .content.timer-page-content {
+    padding: 22px 18px 18px;
+  }
+
+  app-root .timer-page-content .timer-scene {
+    min-height: max(480px, calc(100vh - 260px));
+    padding: 0;
+  }
+
+  app-root .timer-page-content .timer-console {
+    padding: 20px 16px;
+    border-radius: 19px;
+  }
+
+  app-root .timer-page-content .timer-screen {
+    min-height: 250px;
+    margin: 22px 0 25px;
+  }
+
+  app-root .timer-page-content .stopwatch-display {
+    font-size: clamp(56px, 13vw, 112px);
+  }
+
+  app-root .timer-page-content .timer-start,
+  app-root .timer-page-content .timer-reset {
+    min-width: 128px;
+    padding: 13px 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-root .timer-page-content .timer-console {
+    transition: none;
+  }
+}
+
+html:not(.dark-theme) {
+  color-scheme: light;
+  --bg: #f1f0eb;
+  --panel: #f9f8f4;
+  --text: #343a35;
+  --muted: #777d75;
+  --line: #e2e1d9;
+  --green: #607767;
+  --green-light: #e7ece7;
+  --lav: #eeecef;
+  --bordeaux: #5d7162;
+  --silver-dust: #c9cdc3;
+  --accent: #687b6b;
+}
+
+html:not(.dark-theme) body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+html:not(.dark-theme) app-root .main-area {
+  background:
+    radial-gradient(ellipse at 82% 3%, rgba(166, 181, 162, .13), transparent 31%),
+    radial-gradient(ellipse at 12% 54%, rgba(194, 187, 169, .1), transparent 36%),
+    var(--bg);
+}
+
+html:not(.dark-theme) app-root .main-area::after {
+  opacity: .07;
+  background-image:
+    linear-gradient(rgba(82, 100, 84, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(82, 100, 84, .07) 1px, transparent 1px);
+}
+
+html:not(.dark-theme) app-root .card {
+  border-color: #e4e2da;
+  background: linear-gradient(145deg, #fbfaf7, #f7f6f1 78%);
+  box-shadow: 0 3px 12px rgba(48, 54, 46, .035), inset 0 1px rgba(255, 255, 255, .72);
+}
+
+html:not(.dark-theme) app-root .card:hover {
+  border-color: #d3d9d0;
+  box-shadow: 0 6px 16px rgba(48, 54, 46, .055), inset 0 1px rgba(255, 255, 255, .8);
+}
+
+html:not(.dark-theme) app-root .focus-card {
+  background:
+    radial-gradient(ellipse at 8% 100%, rgba(167, 187, 163, .13), transparent 42%),
+    linear-gradient(135deg, #faf9f5, #f4f4ed 100%);
+}
+
+html:not(.dark-theme) app-root .primary {
+  border-color: #667b69;
+  background: #667b69;
+  box-shadow: 0 3px 8px rgba(74, 96, 77, .12);
+}
+
+html:not(.dark-theme) app-root .primary:hover {
+  border-color: #586d5c;
+  background: #586d5c;
+  box-shadow: 0 5px 12px rgba(74, 96, 77, .16);
+}
+
+html:not(.dark-theme) app-root .trend-pill,
+html:not(.dark-theme) app-root .soft-tag {
+  color: #5b705f;
+  background: #e9eee8;
+}
+
+html:not(.dark-theme) app-root .orb {
+  background: conic-gradient(from -90deg, #748a77 var(--progress), #e3e6df var(--progress), #e3e6df 100%);
+  border-color: rgba(91, 112, 95, .15);
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, .7), 0 12px 24px rgba(70, 91, 73, .1);
+}
+
+html:not(.dark-theme) app-root .orb::before {
+  background: radial-gradient(circle at 34% 25%, #f8f8f2, #eceee7 100%);
+  box-shadow: inset 0 2px 7px rgba(76, 91, 74, .06);
+}
+
+html:not(.dark-theme) app-root .orb::after {
+  border-color: rgba(91, 112, 95, .14);
+  box-shadow: 0 10px 18px rgba(70, 91, 73, .08);
+}
+
+html:not(.dark-theme) app-root .orb-core {
+  color: #4d6252;
+}
+
+html:not(.dark-theme) app-root .progress-track span,
+html:not(.dark-theme) app-root .bar-track span.today-bar,
+html:not(.dark-theme) app-root .analytics-track i,
+html:not(.dark-theme) app-root .legend-dot {
+  background: #7b927e;
+}
+
+html:not(.dark-theme) app-root .bar-track span {
+  background: #dfe4dc;
+}
+
+html:not(.dark-theme) app-root .habit-emoji,
+html:not(.dark-theme) app-root .goal-icon,
+html:not(.dark-theme) app-root .setting-symbol,
+html:not(.dark-theme) app-root .insight-card {
+  background: #ecefe9;
+  color: #5e7262;
+}
+
+html:not(.dark-theme) app-root .priority {
+  background: #efeee8;
+  color: #766f5e;
+}
+
+html:not(.dark-theme) app-root .priority.high {
+  background: #f2e9e5;
+  color: #986a5e;
+}
+
+html:not(.dark-theme) app-root .priority.low {
+  background: #e9eee8;
+  color: #66806b;
+}
+
+html:not(.dark-theme) app-root .timer-console {
+  border-color: #deddd3;
+  background: linear-gradient(145deg, #faf9f4, #eeeee7);
+  box-shadow: 0 18px 34px rgba(48, 54, 46, .1), inset 0 1px rgba(255, 255, 255, .86);
+}
+
+html:not(.dark-theme) app-root .timer-console:hover {
+  box-shadow: 0 20px 38px rgba(48, 54, 46, .12), inset 0 1px rgba(255, 255, 255, .9);
+}
+
+html:not(.dark-theme) app-root .timer-console-top,
+html:not(.dark-theme) app-root .timer-console-bottom {
+  border-color: #e0dfd6;
+  color: #73796f;
+}
+
+html:not(.dark-theme) app-root .console-light {
+  border-color: #89937c;
+  background: #a3a889;
+}
+
+html:not(.dark-theme) app-root .timer-screen {
+  background: transparent;
+  box-shadow: none;
+}
+
+html:not(.dark-theme) app-root .screen-label {
+  color: #747a70;
+}
+
+html:not(.dark-theme) app-root .stopwatch-display {
+  color: #414c42;
+  text-shadow: none;
+}
+
+html:not(.dark-theme) app-root .screen-state {
+  color: #777d75;
+}
+
+html:not(.dark-theme) app-root .timer-start {
+  border-color: #718675;
+  background: #718675;
+  color: #fff;
+  box-shadow: 0 3px 0 #5c7061;
+}
+
+html:not(.dark-theme) app-root .timer-start:hover {
+  background: #607565;
+}
+
+html:not(.dark-theme) app-root .timer-reset {
+  border-color: #d7d8d0;
+  background: #f4f3ee;
+  color: #5f665e;
+  box-shadow: 0 3px 0 #deded6;
+}
+
+html:not(.dark-theme) app-root .timer-reset:not(:disabled):hover {
+  border-color: #c9cec5;
+  background: #e8eae3;
+}
+
+html:not(.dark-theme) app-root .day-summary-progress strong {
+  color: #5d7162;
+}
+
+html:not(.dark-theme) app-root .timeline-rail span.done-rail {
+  border-color: #718675;
+  background: #718675;
+  box-shadow: 0 0 0 3px rgba(113, 134, 117, .12);
+}
+
+app-root .goal-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+app-root .goal-stat {
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  gap: 13px;
+  padding: 18px 20px;
+}
+
+app-root .goal-stat-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 19px;
+}
+
+app-root .goal-stat small {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+app-root .goal-stat b {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+}
+
+app-root .goal-stat b i {
+  margin-left: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+}
+
+app-root .goal-average {
+  position: relative;
+  overflow: hidden;
+}
+
+app-root .goal-average-track {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  left: 20px;
+  height: 3px;
+  background: var(--line);
+}
+
+app-root .goal-average-track i {
+  display: block;
+  height: 100%;
+  background: var(--green);
+}
+
+app-root .goal-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+app-root .goal-toolbar h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+}
+
+app-root .goal-toolbar p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+app-root .goal-filters {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 80%, var(--bg));
+}
+
+app-root .goal-filters button {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+app-root .goal-filters button.active {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(31, 40, 32, .1);
+}
+
+app-root .goal-filters button span {
+  margin-left: 3px;
+  color: var(--muted);
+}
+
+app-root .goal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+}
+
+app-root .goal-card {
+  min-width: 0;
+  padding: 21px 22px 18px;
+}
+
+app-root .goal-card-top {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 10px;
+}
+
+app-root .goal-card .goal-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 17px;
+}
+
+app-root .goal-status {
+  padding: 6px 9px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--green-light) 75%, var(--panel));
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+app-root .goal-status-complete {
+  background: color-mix(in srgb, var(--green-light) 75%, var(--panel));
+}
+
+app-root .goal-status-overdue {
+  background: #f3e8e5;
+  color: #96665c;
+}
+
+.dark-theme app-root .goal-status-overdue {
+  background: #493039;
+  color: #e2a8ad;
+}
+
+app-root .goal-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+app-root .goal-date {
+  margin: 18px 0 7px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+app-root .goal-card h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+app-root .goal-card > p {
+  min-height: 38px;
+  margin: 8px 0 20px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+app-root .goal-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+app-root .goal-progress-heading b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+app-root .goal-progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--line);
+}
+
+app-root .goal-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+  transition: width .25s ease;
+}
+
+app-root .goal-is-complete .goal-progress-track span {
+  background: #82927d;
+}
+
+app-root .goal-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+app-root .goal-progress-actions {
+  display: flex;
+  gap: 6px;
+}
+
+app-root .goal-progress-actions button {
+  width: 30px;
+  height: 29px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 15px;
+}
+
+app-root .goal-progress-actions button:not(:disabled):hover {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green);
+}
+
+app-root .goal-progress-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .4;
+}
+
+app-root .goal-empty {
+  grid-column: 1 / -1;
+  padding: 45px 20px;
+}
+
+@media (max-width: 760px) {
+  app-root .goal-overview {
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  app-root .goal-stat {
+    min-height: 80px;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+
+  app-root .goal-stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  app-root .goal-stat small {
+    font-size: 8px;
+    letter-spacing: .5px;
+  }
+
+  app-root .goal-stat b {
+    font-size: 19px;
+  }
+
+  app-root .goal-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  app-root .goal-filters {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  app-root .goal-filters button {
+    padding-inline: 8px;
+  }
+
+  app-root .goal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+app-root .goal-progress-actions .goal-add-step {
+  width: auto;
+  min-width: 86px;
+  padding: 0 10px;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+app-root .goal-steps {
+  display: grid;
+  gap: 2px;
+  margin-top: 15px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+app-root .goal-step {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+}
+
+app-root .goal-step > span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+app-root .goal-step .check {
+  width: 16px;
+  height: 16px;
+}
+
+app-root .goal-step small {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+app-root .goal-contribution-field {
+  display: grid;
+  gap: 7px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 82%, var(--bg));
+}
+
+app-root .goal-contribution-field .field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+}
+
+app-root .goal-contribution-field .field-label b {
+  color: var(--green);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+app-root .goal-contribution-slider {
+  width: 100%;
+  margin: 3px 0;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+app-root .goal-contribution-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+app-root .goal-progress-actions .goal-add-step {
+  width: auto;
+  min-width: 76px;
+}
+
+@media (max-width: 760px) {
+  app-root .shell {
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+  }
+
+  app-root .shell .sidebar {
+    height: calc(132px + env(safe-area-inset-bottom));
+  }
+
+  app-root .shell .sidebar nav {
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+}
+
+app-root .weekly-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  margin-bottom: 18px;
+}
+
+app-root .weekly-stat {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 16px;
+}
+
+app-root .weekly-stat-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 16px;
+}
+
+app-root .weekly-stat small {
+  display: block;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .8px;
+}
+
+app-root .weekly-stat b {
+  display: block;
+  margin: 7px 0 4px;
+  color: var(--text);
+  font-size: 23px;
+  font-variant-numeric: tabular-nums;
+}
+
+app-root .weekly-stat div > span {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+app-root .weekly-review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  gap: 16px;
+}
+
+app-root .weekly-chart-card,
+app-root .weekly-focus-card {
+  min-width: 0;
+  padding: 22px;
+}
+
+app-root .weekly-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+app-root .weekly-section-heading h2,
+app-root .weekly-focus-card h2 {
+  margin: 7px 0 0;
+  color: var(--text);
+  font-size: 16px;
+}
+
+app-root .review-week-chart {
+  display: grid;
+  height: 190px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+app-root .review-day {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 3px;
+  border-radius: 9px;
+}
+
+app-root .review-day.review-today {
+  background: var(--green-light);
+}
+
+app-root .review-day-count {
+  height: 12px;
+  color: var(--muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  line-height: 12px;
+}
+
+app-root .review-bar-track {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  align-items: flex-end;
+  overflow: hidden;
+  border-radius: 7px;
+  background: repeating-linear-gradient(to top, transparent 0, transparent 39px, var(--line) 40px, transparent 41px);
+}
+
+app-root .review-bar-track i {
+  display: block;
+  width: min(58%, 28px);
+  min-height: 0;
+  margin: 0 auto;
+  border-radius: 6px 6px 2px 2px;
+  background: color-mix(in srgb, var(--green) 28%, var(--line));
+  transition: height .2s ease-out;
+}
+
+app-root .review-today .review-bar-track i {
+  background: var(--green);
+}
+
+app-root .review-day small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+app-root .review-today small {
+  color: var(--green);
+  font-weight: 700;
+}
+
+app-root .review-future {
+  opacity: .48;
+}
+
+app-root .weekly-chart-note,
+app-root .weekly-focus-card > p {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+app-root .weekly-chart-note {
+  margin-top: 12px;
+}
+
+app-root .weekly-focus-card > p {
+  margin: 7px 0 15px;
+}
+
+app-root .weekly-focus-input {
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+app-root .weekly-focus-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+app-root .weekly-goal-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+app-root .weekly-goal-prompt .text-button {
+  white-space: nowrap;
+}
+
+app-root .weekly-closing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 12px 4px;
+  color: var(--muted);
+}
+
+app-root .weekly-closing .empty-spark {
+  flex: 0 0 auto;
+}
+
+app-root .weekly-closing p {
+  margin: 0;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  app-root .weekly-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  app-root .weekly-review-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  app-root .weekly-chart-card,
+  app-root .weekly-focus-card {
+    padding: 16px;
+  }
+
+  app-root .review-week-chart {
+    gap: 4px;
+  }
+
+  app-root .weekly-stat {
+    gap: 8px;
+    padding: 14px 10px;
+  }
+
+  app-root .weekly-stat-icon {
+    width: 29px;
+    height: 29px;
+  }
+
+  app-root .weekly-stat small {
+    font-size: 7px;
+    letter-spacing: .4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-root .review-bar-track i {
+    transition: none;
+  }
+}
+
+app-root .timer-fullscreen-toggle {
+  position: absolute;
+  z-index: 4;
+  top: 16px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid #d5d9d0;
+  border-radius: 9px;
+  background: #f0f1eb;
+  color: #586459;
+  box-shadow: 0 2px 6px rgba(45, 54, 45, .06);
+  font-size: 12px;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+app-root .timer-fullscreen-toggle:hover {
+  border-color: #bcc7bb;
+  background: #e6e9e1;
+}
+
+app-root .timer-fullscreen-toggle span:first-child {
+  font-size: 16px;
+  line-height: 1;
+}
+
+app-root .timer-fullscreen-error {
+  position: absolute;
+  z-index: 4;
+  top: 20px;
+  left: 20px;
+  max-width: min(440px, calc(100% - 220px));
+  color: #777e74;
+  font-size: 12px;
+}
+
+html.dark-theme app-root .timer-fullscreen-toggle {
+  border-color: #494147;
+  background: #2b252a;
+  color: #d3cbd0;
+}
+
+html.dark-theme app-root .timer-fullscreen-toggle:hover {
+  border-color: #61545b;
+  background: #342c32;
+}
+
+html.dark-theme app-root .timer-fullscreen-error {
+  color: #aaa1a6;
+}
+
+.shell.timer-fullscreen {
+  display: block;
+  width: 100vw;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+.shell.timer-fullscreen .sidebar,
+.shell.timer-fullscreen .topbar,
+.shell.timer-fullscreen .timer-heading {
+  display: none;
+}
+
+.shell.timer-fullscreen .main-area {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: #e9ebe5;
+}
+
+.shell.timer-fullscreen .main-area::after {
+  display: none;
+}
+
+html.dark-theme .shell.timer-fullscreen .main-area {
+  background: #201c20;
+}
+
+.shell.timer-fullscreen .content.timer-page-content {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.shell.timer-fullscreen .timer-page-content .timer-scene {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 58px 24px 20px;
+  background: radial-gradient(ellipse at 50% 48%, #f0f1ea 0%, #e9ebe5 58%, #e6e9e2 100%);
+}
+
+html.dark-theme .shell.timer-fullscreen .timer-page-content .timer-scene {
+  background: radial-gradient(ellipse at 50% 48%, #29252a 0%, #201c20 68%, #1c191d 100%);
+}
+
+.shell.timer-fullscreen .timer-page-content .timer-console {
+  display: flex;
+  width: min(1440px, 100%);
+  max-height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(18px, 3vh, 38px) clamp(20px, 4vw, 48px);
+}
+
+.shell.timer-fullscreen .timer-page-content .timer-screen {
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: clamp(12px, 3vh, 28px) 0;
+}
+
+.shell.timer-fullscreen .timer-page-content .stopwatch-display {
+  font-size: clamp(64px, 13vw, 176px);
+}
+
+html:not(.dark-theme) app-root .timer-console {
+  border-color: #d8d9d0;
+  background: linear-gradient(155deg, #f3f2eb, #ebece4);
+  box-shadow: 0 12px 30px rgba(48, 54, 46, .08), inset 0 1px rgba(255,255,255,.72);
+}
+
+html:not(.dark-theme) app-root .timer-console:hover {
+  box-shadow: 0 14px 34px rgba(48, 54, 46, .1), inset 0 1px rgba(255,255,255,.78);
+}
+
+html:not(.dark-theme) app-root .timer-console-top,
+html:not(.dark-theme) app-root .timer-console-bottom {
+  border-color: #dedfd6;
+  color: #737a70;
+}
+
+html:not(.dark-theme) app-root .screen-label,
+html:not(.dark-theme) app-root .screen-state {
+  color: #777e74;
+}
+
+html:not(.dark-theme) app-root .stopwatch-display {
+  color: #4a574b;
+  text-shadow: none;
+}
+
+html:not(.dark-theme) app-root .timer-start {
+  border-color: #788a7b;
+  background: #788a7b;
+  color: #fff;
+  box-shadow: 0 3px 0 #667869;
+}
+
+html:not(.dark-theme) app-root .timer-start:hover {
+  background: #697c6c;
+}
+
+html:not(.dark-theme) app-root .timer-reset {
+  border-color: #d6d8d0;
+  background: #eeefe9;
+  color: #5f665e;
+  box-shadow: 0 3px 0 #d9dbd3;
+}
+
+html:not(.dark-theme) app-root .timer-reset:not(:disabled):hover {
+  border-color: #c9cec5;
+  background: #e5e8e1;
+}
+
+html.dark-theme app-root .timer-console {
+  border-color: #494147;
+  background: linear-gradient(155deg, #2d282d, #262226);
+  box-shadow: 0 14px 32px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.045);
+}
+
+html.dark-theme app-root .timer-console-top,
+html.dark-theme app-root .timer-console-bottom {
+  border-color: #443c42;
+  color: #b6abb1;
+}
+
+html.dark-theme app-root .screen-label,
+html.dark-theme app-root .screen-state {
+  color: #aaa1a6;
+}
+
+html.dark-theme app-root .stopwatch-display {
+  color: #e1dadd;
+  text-shadow: none;
+}
+
+html.dark-theme app-root .timer-start {
+  border-color: #74606a;
+  background: #74606a;
+  color: #fff8fa;
+  box-shadow: 0 3px 0 #5c4a53;
+}
+
+html.dark-theme app-root .timer-start:hover {
+  background: #67545e;
+}
+
+html.dark-theme app-root .timer-reset {
+  border-color: #4c4248;
+  background: #332c31;
+  color: #e1dadd;
+  box-shadow: 0 3px 0 #282227;
+}
+
+html.dark-theme app-root .timer-reset:not(:disabled):hover {
+  background: #3b3338;
+}
+
+@media (max-width: 600px) {
+  app-root .timer-fullscreen-toggle {
+    top: 10px;
+    right: 10px;
+    padding: 8px 10px;
+  }
+
+  app-root .timer-fullscreen-error {
+    top: 18px;
+    left: 10px;
+    max-width: calc(100% - 190px);
+    font-size: 10px;
+  }
+
+  .shell.timer-fullscreen .content.timer-page-content {
+    padding: 10px;
+  }
+
+  .shell.timer-fullscreen .timer-page-content .timer-scene {
+    padding: 52px 8px 8px;
+  }
+
+  .shell.timer-fullscreen .timer-page-content .timer-console {
+    padding: 18px 14px;
+  }
+
+  .shell.timer-fullscreen .timer-page-content .stopwatch-display {
+    font-size: clamp(54px, 14vw, 90px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  app-root .timer-fullscreen-toggle {
+    transition: none;
+  }
+}
+
+app-root .sidebar nav {
+  overflow-y: auto;
+}
+
+app-root .event-row {
+  border-inline-start: 0;
+}
+
+app-root .event-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+  border-inline-start: 0;
+}
+
+app-root .event-list-item:last-child {
+  border-bottom: 0;
+}
+
+app-root .event-marker {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--event-soft);
+  color: var(--event-accent);
+}
+
+app-root .event-timeline-row .timeline-rail span.event-timeline-rail {
+  border-color: var(--event-accent);
+  background: var(--event-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--event-accent) 14%, transparent);
+}
+
+app-root .event-timeline-task {
+  gap: 10px;
+}
+
+app-root .event-timeline-task .event-marker {
+  flex: 0 0 30px;
+}
+
+app-root .event-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 14px;
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+app-root .history-task-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 4px;
+}
+
+app-root .task-status-dot {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #899184;
+}
+
+app-root .status-done {
+  background: #6f9b7e;
+}
+
+app-root .status-missed {
+  background: #bf7368;
+}
+
+app-root .status-skipped {
+  background: #aaa39a;
+}
+
+app-root .status-in-progress {
+  background: #7192b7;
+}
+
+app-root .add-choice-list {
+  display: grid;
+  gap: 10px;
+}
+
+app-root .add-choice {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 16px;
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+}
+
+app-root .add-choice > span:nth-child(2) {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+}
+
+app-root .add-choice small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+app-root .add-choice-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--green-light);
+  color: var(--green);
+}
+
+app-root .schedule-filters {
+  margin-bottom: 10px;
+}
+
+app-root .archive-heading {
+  margin-top: 22px;
+}
+
+app-root .history-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  app-root .event-list-item {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  app-root .event-list-item .task-info {
+    flex-basis: calc(100% - 48px);
+  }
+
+  app-root .history-task-row {
+    flex-wrap: wrap;
+  }
+
+  app-root .history-task-row .task-info {
+    flex-basis: calc(100% - 28px);
+  }
+
+  app-root .history-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+html:not(.dark-theme) {
+  --muted: #62685f;
+}
+
+html.dark-theme {
+  --muted: #c0c5bc;
+}
+
+app-root small {
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+
+app-root .chart-note,
+app-root .timer-footnote,
+app-root .goal-toolbar p,
+app-root .goal-card > p,
+app-root .goal-progress-footer,
+app-root .goal-contribution-scale {
+  font-size: 12px !important;
+  line-height: 1.55;
+}
+
+.auth-page .auth-card .auth-google {
+  border: 1px solid #dadce0 !important;
+  background: #fff !important;
+  color: #3c4043 !important;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, .18) !important;
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease !important;
+}
+
+.auth-page .auth-card .auth-google:not(:disabled):hover {
+  border-color: #a8c7fa !important;
+  background: #f3f7ff !important;
+  box-shadow: 0 3px 8px rgba(60, 64, 67, .22), 0 0 0 1px rgba(138, 180, 248, .12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.auth-page .auth-card .auth-google:not(:disabled):active {
+  background: #eaf1fb !important;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, .18) !important;
+  transform: translateY(0) !important;
+}
+
+.auth-page .auth-card .auth-google:focus-visible {
+  outline: 3px solid #8ab4f8;
+  outline-offset: 2px;
+}
