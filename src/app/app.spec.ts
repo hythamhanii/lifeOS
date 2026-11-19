@@ -38,6 +38,7 @@ describe('App', () => {
     savedEvents.length = 0;
     vi.clearAllMocks();
     backend.user.set({ id: 'test-user', email: 'test@example.com' });
+    localStorage.removeItem('life-os-language');
     localStorage.removeItem('life-os-dismissed-adhkar:test-user');
     await TestBed.configureTestingModule({
       imports: [App],
@@ -58,6 +59,28 @@ describe('App', () => {
     expect(fixture.componentInstance.page()).toBe('overview');
     expect(fixture.componentInstance.nav).toHaveLength(13);
     expect(compiled.querySelector('h1')?.textContent).toContain('Make today');
+  });
+
+  it('switches the full interface language and persists the selection', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const toggle = fixture.nativeElement.querySelector('.top-actions .outline-button') as HTMLButtonElement;
+
+    expect(toggle.textContent).toContain('العربية');
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.language()).toBe('ar');
+    expect(localStorage.getItem('life-os-language')).toBe('ar');
+    expect(document.documentElement.lang).toBe('ar');
+    expect(document.documentElement.dir).toBe('rtl');
+    expect(fixture.nativeElement.querySelector('.nav-item')?.textContent).toContain('نظرة عامة');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.language()).toBe('en');
+    expect(document.documentElement.dir).toBe('ltr');
   });
 
   it('toggles the timer focus view from its full-screen control', async () => {

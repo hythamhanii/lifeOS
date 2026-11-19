@@ -1,6 +1,7 @@
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ArchivedNotification, EventRecurrence, EventStatus, Habit, Goal, LifeEvent, LifeTask, TaskStatus, habitStreak, habitWeekdays, isHabitScheduled } from './database';
 import { LifeDataService } from './life-data.service';
+import { ARABIC_TRANSLATIONS } from './translations';
 
 interface LifeReminder {
   id: string;
@@ -29,6 +30,8 @@ interface DailyDhikr {
 export class App {
   readonly backend = inject(LifeDataService);
   nav=[['overview','Overview','◫'],['day','My Day','☼'],['tasks','My Tasks','☷'],['events','Events','◷'],['history','History','↺'],['notifications','Notifications','♧'],['timer','Timer','◷'],['habits','Daily Habits','✳'],['calendar','Calendar','▦'],['analytics','Analytics','⌁'],['goals','Goals','◎'],['weekly','Weekly Review','↗'],['settings','Settings','⚙']];
+  language=signal<'en'|'ar'>(localStorage.getItem('life-os-language')==='ar'?'ar':'en');
+  private readonly languageEffect=effect(()=>{const language=this.language();document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';localStorage.setItem('life-os-language',language)});
   readonly adhkar: DailyDhikr[]=[
     {title:'آية الكرسي',count:'مرة واحدة',text:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ.',source:'البقرة: 255'},
     {title:'سورة الإخلاص',count:'3 مرات',text:'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ.',source:'الإخلاص: 1-4'},
@@ -83,10 +86,10 @@ export class App {
   weekdayOptions=[{day:1,label:'Mon'},{day:2,label:'Tue'},{day:3,label:'Wed'},{day:4,label:'Thu'},{day:5,label:'Fri'},{day:6,label:'Sat'},{day:7,label:'Sun'}];
   clock=signal(Date.now());
   get todayISO(): string { return this.key(new Date(this.clock())); }
-  get todayLabel(): string { return new Intl.DateTimeFormat('en',{weekday:'long',month:'long',day:'numeric'}).format(new Date(this.clock())); }
+  get todayLabel(): string { return new Intl.DateTimeFormat(this.locale,{weekday:'long',month:'long',day:'numeric'}).format(new Date(this.clock())); }
   get todayEyebrow(): string { return this.todayLabel.toUpperCase(); }
   dayDate=signal(this.todayISO);
-  dayLabel=computed(()=>{const [y,m,d]=this.dayDate().split('-').map(Number);return new Intl.DateTimeFormat('en',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(y,m-1,d))});
+  dayLabel=computed(()=>{const [y,m,d]=this.dayDate().split('-').map(Number);return new Intl.DateTimeFormat(this.locale,{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(y,m-1,d))});
   selectedDate=signal(this.todayISO);
   monthAnchor=signal(new Date(new Date().getFullYear(),new Date().getMonth(),1));
   reminderToast=signal(false);
@@ -105,7 +108,7 @@ export class App {
   private quickDhikrInterval=0;
   private quickDhikrToastTimeout=0;
   private previousShortDhikrIndex=-1;
-  pageTitle=computed(()=>this.nav.find(x=>x[0]===this.page())?.[1]||'Overview');
+  pageTitle=computed(()=>this.translate(this.nav.find(x=>x[0]===this.page())?.[1]||'Overview'));
   todayTasks=computed(()=>this.tasks().filter(t=>t.date===this.todayISO).sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
   dayTasks=computed(()=>this.tasks().filter(t=>t.date===this.dayDate()).sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
   dayEvents=computed(()=>this.eventsOnDate(this.dayDate()));
@@ -134,12 +137,13 @@ export class App {
   visibleGoals=computed(()=>this.goals().filter(goal=>this.goalFilter()==='all'||(this.goalFilter()==='active'?this.goalProgress(goal)<100:this.goalProgress(goal)>=100)).sort((a,b)=>{if((this.goalProgress(a)>=100)!==(this.goalProgress(b)>=100))return this.goalProgress(a)>=100?1:-1;if(!a.targetDate)return b.targetDate?1:a.createdAt-b.createdAt;if(!b.targetDate)return -1;return a.targetDate.localeCompare(b.targetDate)}));
   totalDone=computed(()=>this.tasks().filter(t=>t.status==='done').length);
   dayNumber=computed(()=>new Date(this.clock()).getDate());
-  weekBars=computed(()=>{const anchor=new Date(this.clock());const data=Array.from({length:7},(_,i)=>{const d=new Date(anchor);d.setDate(anchor.getDate()-6+i);const key=this.key(d);return {key,label:new Intl.DateTimeFormat('en',{weekday:'short'}).format(d),count:this.tasks().filter(t=>t.date===key&&t.status==='done').length,today:key===this.todayISO}});const max=Math.max(8,Math.ceil(Math.max(0,...data.map(d=>d.count))/4)*4);return data.map(d=>({...d,height:d.count?Math.max(3,d.count/max*100):0}))});
+  weekBars=computed(()=>{const anchor=new Date(this.clock());const data=Array.from({length:7},(_,i)=>{const d=new Date(anchor);d.setDate(anchor.getDate()-6+i);const key=this.key(d);return {key,label:new Intl.DateTimeFormat(this.locale,{weekday:'short'}).format(d),count:this.tasks().filter(t=>t.date===key&&t.status==='done').length,today:key===this.todayISO}});const max=Math.max(8,Math.ceil(Math.max(0,...data.map(d=>d.count))/4)*4);return data.map(d=>({...d,height:d.count?Math.max(3,d.count/max*100):0}))});
   reviewWeekStart=computed(()=>{const start=new Date(this.clock());start.setHours(12,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);return this.key(start)});
   reviewWeekEnd=computed(()=>{const end=new Date(this.reviewWeekStart()+'T12:00:00');end.setDate(end.getDate()+6);return this.key(end)});
-  reviewWeekLabel=computed(()=>{const start=new Date(this.reviewWeekStart()+'T12:00:00'),end=new Date(this.reviewWeekEnd()+'T12:00:00'),format=new Intl.DateTimeFormat('en',{month:'short',day:'numeric'});return `${format.format(start)} – ${new Intl.DateTimeFormat('en',{month:'short',day:'numeric',year:'numeric'}).format(end)}`});
-  reviewWeekDays=computed(()=>Array.from({length:7},(_,index)=>{const date=new Date(this.reviewWeekStart()+'T12:00:00');date.setDate(date.getDate()+index);const key=this.key(date);return{key,label:new Intl.DateTimeFormat('en',{weekday:'short'}).format(date),count:this.tasks().filter(task=>task.date===key&&task.status==='done').length,today:key===this.todayISO,future:key>this.todayISO}}));
+  reviewWeekLabel=computed(()=>{const start=new Date(this.reviewWeekStart()+'T12:00:00'),end=new Date(this.reviewWeekEnd()+'T12:00:00'),format=new Intl.DateTimeFormat(this.locale,{month:'short',day:'numeric'});return `${format.format(start)} – ${new Intl.DateTimeFormat(this.locale,{month:'short',day:'numeric',year:'numeric'}).format(end)}`});
+  reviewWeekDays=computed(()=>Array.from({length:7},(_,index)=>{const date=new Date(this.reviewWeekStart()+'T12:00:00');date.setDate(date.getDate()+index);const key=this.key(date);return{key,label:new Intl.DateTimeFormat(this.locale,{weekday:'short'}).format(date),count:this.tasks().filter(task=>task.date===key&&task.status==='done').length,today:key===this.todayISO,future:key>this.todayISO}}));
   reviewBarHeight(count:number){return `${count?Math.min(100,Math.max(8,count*18)):0}%`}
+  weeklyBarTitle(label:string,count:number,today:boolean){return this.language()==='ar'?`${label}: ${count} مكتمل${today?' · اليوم':''}`:`${label}: ${count} completed${today?' · Today':''}`}
   weeklyCompletedTasks=computed(()=>this.tasks().filter(task=>task.status==='done'&&task.date>=this.reviewWeekStart()&&task.date<=this.todayISO).length);
   weeklyPlannedTasks=computed(()=>this.tasks().filter(task=>task.date>=this.reviewWeekStart()&&task.date<=this.todayISO).length);
   weeklyOpenTasks=computed(()=>this.tasks().filter(task=>task.status==='open'&&task.date>=this.todayISO&&task.date<=this.reviewWeekEnd()).length);
@@ -151,8 +155,8 @@ export class App {
   currentTasks=computed(()=>this.tasks().filter(task=>task.date>=this.currentDateKey()&&task.status!=='missed'));
   selectedTasks=computed(()=>this.scheduleFilter()==='events'?[]:this.tasks().filter(t=>t.date===this.selectedDate()).sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
   selectedEvents=computed(()=>this.scheduleFilter()==='tasks'?[]:this.eventsOnDate(this.selectedDate()));
-  selectedDateLabel=computed(()=>{const [y,m,d]=this.selectedDate().split('-').map(Number);return new Intl.DateTimeFormat('en',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(y,m-1,d))});
-  monthLabel=computed(()=>new Intl.DateTimeFormat('en',{month:'long',year:'numeric'}).format(this.monthAnchor()));
+  selectedDateLabel=computed(()=>{const [y,m,d]=this.selectedDate().split('-').map(Number);return new Intl.DateTimeFormat(this.locale,{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(new Date(y,m-1,d))});
+  monthLabel=computed(()=>new Intl.DateTimeFormat(this.locale,{month:'long',year:'numeric'}).format(this.monthAnchor()));
   monthDays=computed(()=>{const anchor=this.monthAnchor(),y=anchor.getFullYear(),m=anchor.getMonth(),offset=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate(),length=Math.ceil((offset+count)/7)*7;return Array.from({length},(_,i)=>{const date=new Date(y,m,i-offset+1);return{day:date.getDate(),current:date.getMonth()===m,date:this.key(date)}})});
   private readonly baseReminders=computed(()=>{const now=new Date(this.clock()),today=this.key(now),reminders:LifeReminder[]=[];for(const task of this.tasks()){const scheduledTime=task.dueTime||task.time;if(!['open','in-progress'].includes(task.status)||!scheduledTime)continue;const [year,month,day]=task.date.split('-').map(Number),[hours,minutes]=scheduledTime.split(':').map(Number);if(!year||!month||!day||!Number.isFinite(hours)||!Number.isFinite(minutes))continue;const due=new Date(year,month-1,day,hours,minutes),minutesUntil=Math.ceil((due.getTime()-now.getTime())/60000),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),dueStart=new Date(year,month-1,day),daysUntil=Math.round((dueStart.getTime()-todayStart.getTime())/86400000),lead=task.reminderMinutes??120;if(daysUntil<0||daysUntil>1||(daysUntil===1&&due.getTime()<=now.getTime())||(daysUntil===0&&(minutesUntil<=0||minutesUntil>lead)))continue;const timeLabel=daysUntil===1?`is scheduled tomorrow at ${scheduledTime}`:`is scheduled in ${minutesUntil===0?'now':minutesUntil<60?`${minutesUntil} ${minutesUntil===1?'minute':'minutes'}`:`${Math.floor(minutesUntil/60)} ${Math.floor(minutesUntil/60)===1?'hour':'hours'}${minutesUntil%60?` ${minutesUntil%60} ${minutesUntil%60===1?'minute':'minutes'}`:''}`}`;reminders.push({id:'due-'+task.id,title:daysUntil===1?'Tomorrow':'Task coming up',message:`${task.title} ${timeLabel}.`,kind:'upcoming',taskId:task.id})}const remaining=this.tasks().filter(task=>task.date===today&&['open','in-progress'].includes(task.status));const dismissed=new Set(this.dismissedAdhkarReminders());if(now.getHours()>=7&&!dismissed.has(`adhkar-morning-${today}`))reminders.push({id:`adhkar-morning-${today}`,title:'أذكار الصباح',message:'حان وقت أذكار الصباح.',kind:'adhkar',adhkarPeriod:'morning'});if(now.getHours()>=16&&!dismissed.has(`adhkar-evening-${today}`))reminders.push({id:`adhkar-evening-${today}`,title:'أذكار المساء',message:'حان وقت أذكار المساء.',kind:'adhkar',adhkarPeriod:'evening'});if(now.getHours()>=21&&remaining.length){const nextMidnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);const minutesLeft=Math.ceil((nextMidnight.getTime()-now.getTime())/60000);const hoursLeft=Math.floor(minutesLeft/60),remainingMinutes=minutesLeft%60;const timeLeft=hoursLeft?`${hoursLeft} ${hoursLeft===1?'hour':'hours'}${remainingMinutes?` ${remainingMinutes} ${remainingMinutes===1?'minute':'minutes'}`:''}`:`${minutesLeft} ${minutesLeft===1?'minute':'minutes'}`;reminders.push({id:'end-of-day-'+today,title:`${timeLeft} left in your day`,message:`${remaining.length} ${remaining.length===1?'activity is':'activities are'} still unfinished today.`,kind:'end-of-day'})}return reminders});
   reminders=computed(()=>{
@@ -177,6 +181,10 @@ export class App {
   });
   reminderCount=computed(()=>this.reminders().length);
   rows=computed(()=>this.currentTasks().filter(t=>(this.filter()==='all'||t.status===this.filter())&&(t.title+' '+t.category).toLowerCase().includes(this.search().toLowerCase())).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||'')));
+  private get locale(){return this.language()==='ar'?'ar-EG':'en'}
+  translate(value:string){return this.language()==='ar'?ARABIC_TRANSLATIONS[value]??value:value}
+  toggleLanguage(){this.language.update(value=>value==='en'?'ar':'en')}
+  navLabel(value:string){return this.translate(value)}
   constructor(){
     document.documentElement.classList.toggle('dark-theme',this.dark());
     void this.backend.initialize();
@@ -241,7 +249,7 @@ export class App {
   shiftMonth(amount:number){const selected=this.selectedDate().split('-').map(Number),year=this.monthAnchor().getFullYear(),month=this.monthAnchor().getMonth()+amount,next=new Date(year,month,1),day=Math.min(selected[2],new Date(next.getFullYear(),next.getMonth()+1,0).getDate());this.monthAnchor.set(next);this.selectedDate.set(this.key(new Date(next.getFullYear(),next.getMonth(),day)))}
   goToCalendarToday(){const today=new Date();this.monthAnchor.set(new Date(today.getFullYear(),today.getMonth(),1));this.selectedDate.set(this.todayISO)}
   selectCalendarDate(date:string){this.selectedDate.set(date);const [year,month]=date.split('-').map(Number);this.monthAnchor.set(new Date(year,month-1,1))}
-  calendarDayLabel(date:string,current:boolean){const [year,month,day]=date.split('-').map(Number);const label=new Intl.DateTimeFormat('en',{weekday:'long',month:'long',day:'numeric'}).format(new Date(year,month-1,day));return `${label}${current?'':' (outside this month)'}`}
+  calendarDayLabel(date:string,current:boolean){const [year,month,day]=date.split('-').map(Number);const label=new Intl.DateTimeFormat(this.locale,{weekday:'long',month:'long',day:'numeric'}).format(new Date(year,month-1,day));return `${label}${current?'':this.language()==='ar'?' (خارج هذا الشهر)':this.translate(' (outside this month)')}`}
   private eventOccursOn(event:LifeEvent,date:string){
     if(date<event.date||(event.recurrenceUntil&&date>event.recurrenceUntil))return false;
     if(event.recurrence==='none')return date===event.date;
@@ -261,8 +269,8 @@ export class App {
   }
   hasScheduledItems(date:string){return (this.scheduleFilter()!=='events'&&this.tasks().some(task=>task.date===date))||(this.scheduleFilter()!=='tasks'&&this.events().some(event=>this.eventOccursOn(event,date)))}
   shiftHistory(amount:number){const date=new Date(this.historyDate()+'T12:00:00');date.setDate(date.getDate()+amount);this.historyDate.set(this.key(date))}
-  formatCompletionTime(timestamp?:number){return timestamp?new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(timestamp):'Completion time not recorded'}
-  formatNotificationDate(timestamp:string){return new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(timestamp))}
+  formatCompletionTime(timestamp?:number){return timestamp?new Intl.DateTimeFormat(this.locale,{dateStyle:'medium',timeStyle:'short'}).format(timestamp):this.translate('Completion time not recorded')}
+  formatNotificationDate(timestamp:string){return new Intl.DateTimeFormat(this.locale,{dateStyle:'medium',timeStyle:'short'}).format(new Date(timestamp))}
   eventStatusLabel(event:LifeEvent,date=event.date){
     if(event.status!=='upcoming')return event.status;
     if(date!==this.todayISO)return date<this.todayISO?'Completed':'Upcoming';
@@ -271,7 +279,10 @@ export class App {
     if(now<=end)return'Ongoing';
     return'Completed';
   }
-  reminderDateLabel(id:string){const task=this.reminderTask(id);if(!task)return'';const [year,month,day]=task.date.split('-').map(Number),date=new Intl.DateTimeFormat('en',{month:'short',day:'numeric'}).format(new Date(year,month-1,day)),times=task.time&&task.dueTime?`${task.time}–${task.dueTime}`:task.dueTime||task.time;return `${date}${times?' · '+times:''}`}
+  reminderDateLabel(id:string){const task=this.reminderTask(id);if(!task)return'';const [year,month,day]=task.date.split('-').map(Number),date=new Intl.DateTimeFormat(this.locale,{month:'short',day:'numeric'}).format(new Date(year,month-1,day)),times=task.time&&task.dueTime?`${task.time}–${task.dueTime}`:task.dueTime||task.time;return `${date}${times?' · '+times:''}`}
+  reminderTitle(reminder:LifeReminder){if(this.language()==='ar'&&reminder.kind==='end-of-day'){const amount=reminder.title.replace(' left in your day','');return `متبقي ${amount} من يومك`}return this.translate(reminder.title)}
+  reminderMessage(reminder:LifeReminder){if(this.language()!=='ar')return this.translate(reminder.message);if(reminder.kind==='adhkar')return reminder.message;if(reminder.kind==='end-of-day'){const count=this.tasks().filter(task=>task.date===this.todayISO&&['open','in-progress'].includes(task.status)).length;return `${count} ${count===1?'نشاط لم يكتمل':'أنشطة لم تكتمل'} اليوم.`}if(reminder.taskId){const task=this.reminderTask(reminder.taskId);if(task){const scheduled=reminder.message.match(/is scheduled (.+)\.$/)?.[1]??'';return `موعد ${task.title} ${scheduled.includes('tomorrow')?'غدًا':'قريبًا'} ${scheduled.match(/at (.+)/)?.[1]?`الساعة ${scheduled.match(/at (.+)/)?.[1]}`:''}.`}}if(reminder.eventId){const event=this.events().find(item=>item.id===reminder.eventId);if(event){const duration=reminder.message.match(/starts in (.+)\.$/)?.[1]??'';return `يبدأ ${event.title} بعد ${duration}.`}}return this.translate(reminder.message)}
+  reminderToastMessage(count:number){return this.language()==='ar'?`${count} ${count===1?'تذكير بانتظارك.':'تذكيرات بانتظارك.'}`:`${count} ${count===1?'reminder is':'reminders are'} waiting for you.`}
   async refresh(){
     const userId=this.backend.user()?.id;
     if(!userId){this.tasks.set([]);this.events.set([]);this.archivedNotifications.set([]);this.habits.set([]);this.goals.set([]);return}
@@ -422,6 +433,7 @@ export class App {
   toggleWeekday(day:number){this.selectedWeekdays.update(days=>days.includes(day)?days.filter(d=>d!==day):[...days,day].sort((a,b)=>a-b))}
   setWeekdayPreset(preset:'everyday'|'weekdays'|'weekends'){this.selectedWeekdays.set(preset==='everyday'?[1,2,3,4,5,6,7]:preset==='weekdays'?[1,2,3,4,5]:[6,7])}
   scheduleLabel(h:Habit){return this.scheduleLabelForDays(habitWeekdays(h))}
+  localizedScheduleLabel(h:Habit){const days=habitWeekdays(h);if(days.length===7)return this.translate('Every day');if(days.join(',')==='1,2,3,4,5')return this.translate('Weekdays');if(days.join(',')==='6,7')return this.translate('Weekends');const labels=days.map(day=>this.weekdayOptions.find(option=>option.day===day)?.label).filter((label):label is string=>Boolean(label)).map(label=>this.translate(label));return this.language()==='ar'?`أسبوعيًا · ${labels.join('، ')}`:`Weekly · ${labels.join(', ')}`}
   scheduleLabelForDays(days:number[]){if(days.length===7)return'Every day';if(days.join(',')==='1,2,3,4,5')return'Weekdays';if(days.join(',')==='6,7')return'Weekends';return'Weekly · '+days.map(d=>this.weekdayOptions.find(x=>x.day===d)?.label).filter(Boolean).join(', ')}
   isScheduledToday(h:Habit){return isHabitScheduled(h,this.todayISO)}
   isHabitDone(h:Habit){return h.completionDates?.includes(this.todayISO)??h.done}
@@ -430,11 +442,13 @@ export class App {
   editGoal(goal:Goal){this.title.set(goal.title);this.desc.set(goal.description);this.goalDate.set(goal.targetDate);this.editingGoal.set(goal.id);this.modal.set('goal')}
   goalTasks(goal:Goal){return this.tasks().filter(task=>task.goalId===goal.id).sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''))}
   goalProgress(goal:Goal){const contributions=this.goalTasks(goal).filter(task=>task.status==='done').reduce((sum,task)=>sum+(task.goalContribution??0),0);return Math.min(100,Math.max(0,goal.progress+contributions))}
-  goalStepSummary(goal:Goal){const steps=this.goalTasks(goal),done=steps.filter(task=>task.status==='done');return`${done.length} of ${steps.length} steps complete · +${done.reduce((sum,task)=>sum+(task.goalContribution??0),0)}%`}
+  goalStepSummary(goal:Goal){const steps=this.goalTasks(goal),done=steps.filter(task=>task.status==='done'),contribution=done.reduce((sum,task)=>sum+(task.goalContribution??0),0);return this.language()==='ar'?`اكتمل ${done.length} من ${steps.length} خطوات · +${contribution}%`:`${done.length} of ${steps.length} steps complete · +${contribution}%`}
   loadWeeklyFocus(){const userId=this.backend.user()?.id;if(!userId){this.weeklyFocus.set('');return}this.weeklyFocus.set(localStorage.getItem(`life-os-weekly-focus:${userId}:${this.reviewWeekStart()}`)||'')}
   setWeeklyFocus(value:string){this.weeklyFocus.set(value);const userId=this.backend.user()?.id;if(userId)localStorage.setItem(`life-os-weekly-focus:${userId}:${this.reviewWeekStart()}`,value)}
-  goalDueLabel(goal:Goal){if(this.goalProgress(goal)>=100)return'Completed';if(!goal.targetDate)return'No target date';const target=new Date(goal.targetDate+'T12:00:00');if(Number.isNaN(target.getTime()))return'No target date';const today=new Date(this.todayISO+'T12:00:00');const days=Math.round((target.getTime()-today.getTime())/86400000);if(days<0)return`Overdue by ${Math.abs(days)} ${Math.abs(days)===1?'day':'days'}`;if(days===0)return'Due today';return days===1?'1 day left':`${days} days left`}
-  formatGoalDate(date:string){if(!date)return'';const parsed=new Date(date+'T12:00:00');return Number.isNaN(parsed.getTime())?'':new Intl.DateTimeFormat('en',{month:'short',day:'numeric',year:'numeric'}).format(parsed)}
+  goalDueLabel(goal:Goal){const arabic=this.language()==='ar';if(this.goalProgress(goal)>=100)return this.translate('Completed');if(!goal.targetDate)return this.translate('No target date');const target=new Date(goal.targetDate+'T12:00:00');if(Number.isNaN(target.getTime()))return this.translate('No target date');const today=new Date(this.todayISO+'T12:00:00');const days=Math.round((target.getTime()-today.getTime())/86400000);if(days<0)return arabic?`متأخر ${Math.abs(days)} ${Math.abs(days)===1?'يوم':'أيام'}`:`Overdue by ${Math.abs(days)} ${Math.abs(days)===1?'day':'days'}`;if(days===0)return this.translate('Due today');return arabic?`متبقي ${days} ${days===1?'يوم':'أيام'}`:days===1?'1 day left':`${days} days left`}
+  goalIsOverdue(goal:Goal){return this.goalProgress(goal)<100&&Boolean(goal.targetDate)&&goal.targetDate<this.todayISO}
+  translateStatus(status:string){const labels:Record<string,string>={open:'Pending','in-progress':'In progress',done:'Completed',missed:'MISSED',skipped:'Skipped',low:'Low',medium:'Medium',high:'High',upcoming:'Upcoming',ongoing:'Ongoing',completed:'Completed',cancelled:'Cancelled',daily:'Daily',weekly:'Weekly',monthly:'Monthly',none:'Does not repeat'};return this.translate(labels[status]??status)}
+  formatGoalDate(date:string){if(!date)return'';const parsed=new Date(date+'T12:00:00');return Number.isNaN(parsed.getTime())?'':new Intl.DateTimeFormat(this.locale,{month:'short',day:'numeric',year:'numeric'}).format(parsed)}
   edit(t:LifeTask){this.editing.set(t.id);this.title.set(t.title);this.taskDescription.set(t.description||'');this.date.set(t.date);this.time.set(t.time);this.dueTime.set(t.dueTime||'');this.reminderMinutes.set(t.reminderMinutes??120);this.taskStatus.set(t.status);this.priority.set(t.priority);this.category.set(t.category);this.goalId.set(t.goalId||'');this.goalContribution.set(t.goalId?t.goalContribution??10:0);this.modal.set('task')}
   async saveTask(){if(!this.title().trim())return;await this.run(async()=>{const old=this.tasks().find(t=>t.id===this.editing());const status=this.taskStatus();await this.backend.saveTask({id:this.editing()||crypto.randomUUID(),taskId:old?.taskId,title:this.title().trim(),description:this.taskDescription().trim(),date:this.date(),time:this.time(),dueTime:this.dueTime(),reminderMinutes:this.reminderMinutes(),priority:this.priority() as LifeTask['priority'],category:this.category()||'Personal',status,completedAt:status==='done'?(old?.completedAt??Date.now()):undefined,createdAt:old?.createdAt||Date.now(),goalId:this.goalId()||undefined,goalContribution:this.goalId()?this.goalContribution():undefined,rescheduledFromId:old?.rescheduledFromId});await this.refresh();this.modal.set('');this.say('Task saved')})}
   editEvent(event:LifeEvent){this.editingEvent.set(event.id);this.title.set(event.title);this.desc.set(event.description);this.date.set(event.date);this.time.set(event.startTime);this.eventEndTime.set(event.endTime);this.eventLocation.set(event.location);this.eventReminderMinutes.set(event.reminderMinutes);this.eventRecurrence.set(event.recurrence);this.eventRecurrenceUntil.set(event.recurrenceUntil);this.modal.set('event')}
