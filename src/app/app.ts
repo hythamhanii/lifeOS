@@ -29,7 +29,7 @@ interface DailyDhikr {
 })
 export class App {
   readonly backend = inject(LifeDataService);
-  nav=[['overview','Overview','◫'],['day','My Day','☼'],['tasks','My Tasks','☷'],['events','Events','◷'],['history','History','↺'],['notifications','Notifications','♧'],['timer','Timer','◷'],['habits','Daily Habits','✳'],['calendar','Calendar','▦'],['analytics','Analytics','⌁'],['goals','Goals','◎'],['weekly','Weekly Review','↗'],['settings','Settings','⚙']];
+  nav=[['overview','Overview','◫'],['day','My Day','☼'],['tasks','My Tasks','☷'],['events','Events','◷'],['history','History','↺'],['notifications','Notifications','♧'],['timer','Timer','◷'],['habits','Daily Habits','✳'],['calendar','Calendar','▦'],['goals','Goals','◎'],['weekly','Weekly Review','↗'],['settings','Settings','⚙']];
   language=signal<'en'|'ar'>(localStorage.getItem('life-os-language')==='ar'?'ar':'en');
   private readonly languageEffect=effect(()=>{const language=this.language();document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';localStorage.setItem('life-os-language',language)});
   readonly adhkar: DailyDhikr[]=[
@@ -70,6 +70,7 @@ export class App {
   animatedPercent=signal(0);
   private progressFrame=0;
   modal=signal(''); title=signal(''); date=signal(this.key(new Date())); time=signal(''); priority=signal('medium'); category=signal(''); goalId=signal(''); goalContribution=signal(10); filter=signal('all'); search=signal(''); toast=signal(''); dark=signal(localStorage.getItem('life-os-theme')==='dark');
+  notificationSound=signal(localStorage.getItem('life-os-notification-sound')==='true');
   authMode=signal<'signin'|'signup'>('signin'); authEmail=signal(''); authPassword=signal(''); confirmPassword=signal(''); showPassword=signal(false); authBusy=signal(false); authError=signal(''); backendError=signal('');
   passwordStrength=computed(()=>this.getPasswordStrength(this.authPassword()));
   passwordsMatch=computed(()=>!this.confirmPassword()||this.confirmPassword()===this.authPassword());
@@ -108,6 +109,7 @@ export class App {
   private quickDhikrInterval=0;
   private quickDhikrToastTimeout=0;
   private previousShortDhikrIndex=-1;
+  private notificationAudioContext:AudioContext|null=null;
   pageTitle=computed(()=>this.translate(this.nav.find(x=>x[0]===this.page())?.[1]||'Overview'));
   todayTasks=computed(()=>this.tasks().filter(t=>t.date===this.todayISO).sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
   dayTasks=computed(()=>this.tasks().filter(t=>t.date===this.dayDate()).sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
@@ -135,7 +137,6 @@ export class App {
   completedGoalCount=computed(()=>this.goals().filter(goal=>this.goalProgress(goal)>=100).length);
   averageGoalProgress=computed(()=>{const active=this.goals().filter(goal=>this.goalProgress(goal)<100);return active.length?Math.round(active.reduce((sum,goal)=>sum+this.goalProgress(goal),0)/active.length):0});
   visibleGoals=computed(()=>this.goals().filter(goal=>this.goalFilter()==='all'||(this.goalFilter()==='active'?this.goalProgress(goal)<100:this.goalProgress(goal)>=100)).sort((a,b)=>{if((this.goalProgress(a)>=100)!==(this.goalProgress(b)>=100))return this.goalProgress(a)>=100?1:-1;if(!a.targetDate)return b.targetDate?1:a.createdAt-b.createdAt;if(!b.targetDate)return -1;return a.targetDate.localeCompare(b.targetDate)}));
-  totalDone=computed(()=>this.tasks().filter(t=>t.status==='done').length);
   dayNumber=computed(()=>new Date(this.clock()).getDate());
   weekBars=computed(()=>{const anchor=new Date(this.clock());const data=Array.from({length:7},(_,i)=>{const d=new Date(anchor);d.setDate(anchor.getDate()-6+i);const key=this.key(d);return {key,label:new Intl.DateTimeFormat(this.locale,{weekday:'short'}).format(d),count:this.tasks().filter(t=>t.date===key&&t.status==='done').length,today:key===this.todayISO}});const max=Math.max(8,Math.ceil(Math.max(0,...data.map(d=>d.count))/4)*4);return data.map(d=>({...d,height:d.count?Math.max(3,d.count/max*100):0}))});
   reviewWeekStart=computed(()=>{const start=new Date(this.clock());start.setHours(12,0,0,0);start.setDate(start.getDate()-(start.getDay()+6)%7);return this.key(start)});
@@ -241,6 +242,7 @@ export class App {
       window.clearInterval(this.stopwatchInterval);
       window.clearTimeout(this.reminderToastTimeout);
       this.stopQuickDhikrReminders();
+      if(this.notificationAudioContext)void this.notificationAudioContext.close();
       document.removeEventListener('fullscreenchange',this.fullscreenChangeHandler);
     });
   }
@@ -351,6 +353,7 @@ export class App {
     const choice=choices[Math.floor(Math.random()*choices.length)];
     this.previousShortDhikrIndex=choice.index;
     this.quickDhikrToast.set(choice.text);
+    void this.playNotificationSound();
     window.clearTimeout(this.quickDhikrToastTimeout);
     this.quickDhikrToastTimeout=window.setTimeout(()=>this.quickDhikrToast.set(''),7000);
   }
@@ -359,7 +362,50 @@ export class App {
     this.quickDhikrToastTimeout=0;
     this.quickDhikrToast.set('');
   }
-  private notifyReminders(){const active=this.reminders(),activeIds=new Set(active.map(reminder=>reminder.id));for(const id of this.announcedReminders)if(!activeIds.has(id))this.announcedReminders.delete(id);const fresh=active.filter(reminder=>!this.announcedReminders.has(reminder.id));if(!fresh.length)return;for(const reminder of fresh)this.announcedReminders.add(reminder.id);this.reminderToast.set(true);window.clearTimeout(this.reminderToastTimeout);this.reminderToastTimeout=window.setTimeout(()=>this.reminderToast.set(false),9000)}
+  private notifyReminders(){const active=this.reminders(),activeIds=new Set(active.map(reminder=>reminder.id));for(const id of this.announcedReminders)if(!activeIds.has(id))this.announcedReminders.delete(id);const fresh=active.filter(reminder=>!this.announcedReminders.has(reminder.id));if(!fresh.length)return;for(const reminder of fresh)this.announcedReminders.add(reminder.id);this.reminderToast.set(true);void this.playNotificationSound();window.clearTimeout(this.reminderToastTimeout);this.reminderToastTimeout=window.setTimeout(()=>this.reminderToast.set(false),9000)}
+  setNotificationSound(enabled:boolean){
+    if(!enabled){
+      this.notificationSound.set(false);
+      localStorage.setItem('life-os-notification-sound','false');
+      return;
+    }
+    if(typeof window.AudioContext!=='function'){
+      this.say('Notification sound is not supported in this browser.');
+      return;
+    }
+    this.notificationSound.set(true);
+    localStorage.setItem('life-os-notification-sound','true');
+    void this.playNotificationSound(true);
+  }
+  private async playNotificationSound(preview=false){
+    if(!preview&&!this.notificationSound())return;
+    if(typeof window.AudioContext!=='function'){
+      this.disableNotificationSound('Notification sound is not supported in this browser.');
+      return;
+    }
+    try{
+      const context=this.notificationAudioContext??=new window.AudioContext();
+      await context.resume();
+      const oscillator=context.createOscillator(),gain=context.createGain(),start=context.currentTime;
+      oscillator.type='sine';
+      oscillator.frequency.setValueAtTime(740,start);
+      oscillator.frequency.exponentialRampToValueAtTime(520,start+.16);
+      gain.gain.setValueAtTime(.0001,start);
+      gain.gain.exponentialRampToValueAtTime(.12,start+.015);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+.22);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start+.23);
+    }catch{
+      this.disableNotificationSound('Could not play notification sound. Check your browser audio settings.');
+    }
+  }
+  private disableNotificationSound(message:string){
+    this.notificationSound.set(false);
+    localStorage.setItem('life-os-notification-sound','false');
+    this.say(message);
+  }
   private adhkarDismissalStorageKey(userId:string){return`life-os-dismissed-adhkar:${userId}`}
   openAdhkarReminder(reminder:LifeReminder){const userId=this.backend.user()?.id;if(reminder.adhkarPeriod&&userId)this.activeAdhkarReminder.set({id:reminder.id,period:reminder.adhkarPeriod,userId})}
   closeAdhkarReminder(){const active=this.activeAdhkarReminder();if(!active)return;if(this.backend.user()?.id===active.userId){const dismissed=new Set(this.dismissedAdhkarReminders());dismissed.add(active.id);const ids=[...dismissed];this.dismissedAdhkarReminders.set(ids);localStorage.setItem(this.adhkarDismissalStorageKey(active.userId),ids.join(','))}this.activeAdhkarReminder.set(null)}
@@ -458,7 +504,6 @@ export class App {
   async removeEvent(event:LifeEvent){await this.run(async()=>{await this.backend.deleteEvent(event.id);await this.refresh();this.say('Event removed')})}
   async completeHistoryTask(task:LifeTask){await this.run(async()=>{await this.backend.updateTask(task.id,'done',Date.now());await this.refresh()})}
   skipHistoryTask(task:LifeTask){void this.run(async()=>{await this.backend.updateTask(task.id,'skipped');await this.refresh()})}
-  keepHistoryTask(){this.say('Task remains in its original history')}
   startReschedule(task:LifeTask){const tomorrow=new Date(this.todayISO+'T12:00:00');tomorrow.setDate(tomorrow.getDate()+1);this.reschedulingTask.set(task.id);this.rescheduleDate.set(this.key(tomorrow));this.modal.set('reschedule')}
   async rescheduleMissedTask(){const original=this.tasks().find(task=>task.id===this.reschedulingTask());if(!original||!this.rescheduleDate())return;await this.run(async()=>{await this.backend.saveTask({...original,id:crypto.randomUUID(),taskId:original.taskId,date:this.rescheduleDate(),status:'open',completedAt:undefined,createdAt:Date.now(),rescheduledFromId:original.id});this.modal.set('');await this.refresh();this.say('Rescheduled as a new task; original stays in history')})}
   async deleteActiveNotification(reminder:LifeReminder){

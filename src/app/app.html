@@ -840,7 +840,6 @@
                   <button class="subtle-button" (click)="completeHistoryTask(task)">{{ translate("Complete") }}</button>
                   <button class="subtle-button" (click)="startReschedule(task)">{{ translate("Reschedule") }}</button>
                   <button class="subtle-button" (click)="skipHistoryTask(task)">{{ translate("Skip") }}</button>
-                  <button class="subtle-button" (click)="keepHistoryTask()">{{ translate("Keep in history") }}</button>
                 }
               </article>
             } @empty {
@@ -1004,54 +1003,6 @@
               }
             </div>
           </div>
-        }
-
-        @if (page() === 'analytics') {
-          <div class="greeting-row page-title-row">
-            <div>
-              <div class="eyebrow">{{ translate("NOTICE YOUR OWN PROGRESS") }}</div>
-              <h1>{{ translate("Progress, in perspective.") }}</h1>
-              <p class="subtitle">{{ translate("Honest insights from the activities you’ve tracked.") }}</p>
-            </div>
-          </div>
-          <div class="stats-strip">
-            <div class="card stat-card">
-              <span>{{ translate("ACTIVITIES COMPLETED") }}</span><b>{{ totalDone() }}</b
-              ><small>{{ translate("Based on saved records") }}</small>
-            </div>
-            <div class="card stat-card">
-              <span>{{ translate("TODAY’S COMPLETION") }}</span><b>{{ percent() }}<i>%</i></b
-              ><small>{{ translate("Done ÷ planned activities") }}</small>
-            </div>
-            <div class="card stat-card">
-              <span>{{ translate("OPEN ACTIVITIES") }}</span><b>{{ openCount() }}</b
-              ><small>{{ translate("Ready when you are") }}</small>
-            </div>
-          </div>
-          <div class="card analytics-card">
-            <span class="eyebrow">{{ translate("TODAY'S ACTIVITY") }}</span>
-            <h2>{{ translate("Your progress today") }}</h2>
-            <div class="analytics-bars">
-              <div class="analytics-col">
-                <span class="analytics-value">{{ done() }}</span>
-                <div class="analytics-track"><i [style.height]="percent() + '%'"></i></div>
-                <span>{{ translate("Completed") }}</span>
-              </div>
-              <div class="analytics-col">
-                <span class="analytics-value">{{ todayTasks().length - done() }}</span>
-                <div class="analytics-track"><i [style.height]="100 - percent() + '%'"></i></div>
-                <span>{{ translate("Remaining") }}</span>
-              </div>
-            </div>
-            <p class="chart-note">
-              {{ translate("Completion rate is completed activities divided by activities scheduled for today. Empty days are not presented as zero performance.") }}
-            </p>
-          </div>
-          @if (!tasks().length) {
-            <div class="insight-card">
-              {{ translate("Your progress story starts here. Complete a few scheduled activities to unlock meaningful insights.") }}
-            </div>
-          }
         }
 
         @if (page() === 'goals') {
@@ -1282,6 +1233,26 @@
                     (change)="import($event)"
                     hidden
                 /></label>
+              </div>
+            </div>
+            <div class="card setting-section">
+              <div class="setting-title">
+                <div class="setting-symbol">♫</div>
+                <div>
+                  <h2>{{ translate("Notification sound") }}</h2>
+                  <p>{{ translate("Play a short sound for corner reminders.") }} {{ translate("Enabling this setting plays a preview.") }}</p>
+                </div>
+              </div>
+              <div class="setting-line">
+                <span>{{ translate("Includes adhkar and activity reminders.") }}</span>
+                <button
+                  type="button"
+                  class="choice-button"
+                  [attr.aria-pressed]="notificationSound()"
+                  (click)="setNotificationSound(!notificationSound())"
+                >
+                  {{ translate(notificationSound() ? "On" : "Off") }}
+                </button>
               </div>
             </div>
             <div class="card setting-section">

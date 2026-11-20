@@ -40,6 +40,7 @@ describe('App', () => {
     backend.user.set({ id: 'test-user', email: 'test@example.com' });
     localStorage.removeItem('life-os-language');
     localStorage.removeItem('life-os-dismissed-adhkar:test-user');
+    localStorage.removeItem('life-os-notification-sound');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [{ provide: LifeDataService, useValue: backend }],
@@ -57,7 +58,8 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(fixture.componentInstance.page()).toBe('overview');
-    expect(fixture.componentInstance.nav).toHaveLength(13);
+    expect(fixture.componentInstance.nav).toHaveLength(12);
+    expect(fixture.componentInstance.nav.map(item => item[0])).not.toContain('analytics');
     expect(compiled.querySelector('h1')?.textContent).toContain('Make today');
   });
 
@@ -503,6 +505,23 @@ describe('App', () => {
     });
   });
 
+  it('omits the keep-in-history action for missed tasks', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const app = fixture.componentInstance;
+    app.page.set('history');
+    app.historyDate.set('2026-11-12');
+    app.tasks.set([
+      { id: 'missed', title: 'Missed task', date: '2026-11-12', time: '', priority: 'medium', category: 'Personal', status: 'missed', createdAt: 1 }
+    ]);
+    fixture.detectChanges();
+
+    const buttons = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.history-task-row button'))
+      .map(button => button.textContent?.trim());
+    expect(buttons).toContain('Reschedule');
+    expect(buttons).not.toContain('Keep in history');
+  });
+
   it('prevents completing or reopening tasks from dates before today', async () => {
     const app = TestBed.createComponent(App).componentInstance;
     app.clock.set(new Date(2026, 10, 15, 12).getTime());
@@ -648,6 +667,53 @@ describe('App', () => {
     expect(app.quickDhikrToast()).toBe('');
     random.mockRestore();
     fixture.destroy();
+  });
+
+  it('plays a preview when notification sound is enabled and persists the setting', async () => {
+    const oscillator = {
+      type: 'sine',
+      frequency: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      connect: vi.fn(),
+      start: vi.fn(),
+      stop: vi.fn()
+    };
+    const gain = {
+      gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+      connect: vi.fn()
+    };
+    class FakeAudioContext {
+      currentTime = 1;
+      destination = {};
+      resume = vi.fn(async () => {});
+      close = vi.fn(async () => {});
+      createOscillator = vi.fn(() => oscillator);
+      createGain = vi.fn(() => gain);
+    }
+    vi.stubGlobal('AudioContext', FakeAudioContext);
+
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    expect(app.notificationSound()).toBe(false);
+
+    app.setNotificationSound(true);
+    await vi.waitFor(() => expect(oscillator.start).toHaveBeenCalled());
+
+    expect(app.notificationSound()).toBe(true);
+    expect(localStorage.getItem('life-os-notification-sound')).toBe('true');
+
+    const previewCount = oscillator.start.mock.calls.length;
+    app.showQuickDhikrReminder();
+    await vi.waitFor(() => expect(oscillator.start).toHaveBeenCalledTimes(previewCount + 1));
+
+    app.setNotificationSound(false);
+    const disabledCount = oscillator.start.mock.calls.length;
+    app.showQuickDhikrReminder();
+    expect(oscillator.start).toHaveBeenCalledTimes(disabledCount);
+    expect(app.notificationSound()).toBe(false);
+    expect(localStorage.getItem('life-os-notification-sound')).toBe('false');
+
+    fixture.destroy();
+    vi.unstubAllGlobals();
   });
 
   it('formats the focus timer as an elapsed stopwatch', () => {

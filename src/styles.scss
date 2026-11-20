@@ -1,8 +1,8 @@
 @use './auth.scss';
 
 /* You can add global styles to this file, and also import other style files */
-:root{font-family:Arial,sans-serif;color:#22251f;background:#f7f8f5;font-synthesis:none;text-rendering:optimizeLegibility;font-optical-sizing:auto;font-weight:400;--bg:#f7f8f5;--panel:#fff;--text:#22251f;--muted:#81867e;--line:#e9ebe5;--green:#3f705b;--green-light:#e7f0eb;--lav:#f0edfa}
-*{box-sizing:border-box}body{margin:0;min-width:360px;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #93b8a4;outline-offset:2px}.dark-theme{--bg:#171a18;--panel:#202421;--text:#eef1eb;--muted:#a0a69d;--line:#343a35;--green:#94c2a8;--green-light:#293b30;--lav:#343044}
+:root{font-family:Arial,sans-serif;color:#26372F;background:#E9EEEA;font-synthesis:none;text-rendering:optimizeLegibility;font-optical-sizing:auto;font-weight:400;--bg:#E9EEEA;--sidebar:#DFE7E0;--panel:#F1F5F0;--elevated:#F5F7F3;--text:#26372F;--muted:#718077;--line:#CDD8D0;--green:#477B60;--green-light:color-mix(in srgb,#477B60 14%,#F1F5F0);--accent:#B9788E;--rose:#B9788E;--gold:#B18B4F;--success:#79B995;--warning:#B18B4F;--error:#D97979;--info:#477B60;--lav:#DFE7E0;--bordeaux:#477B60;--silver-dust:#CDD8D0;--event-accent:#B9788E;--event-soft:color-mix(in srgb,#B9788E 14%,#F1F5F0)}
+*{box-sizing:border-box}body{margin:0;min-width:360px;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #83AFCB;outline-offset:2px}.dark-theme{--bg:#171216;--sidebar:#21191F;--panel:#281E25;--elevated:#30232C;--text:#F5EDF1;--muted:#B7A6AF;--line:#493640;--green:#8FC5A6;--green-light:color-mix(in srgb,#8FC5A6 14%,#281E25);--accent:#D98FA5;--rose:#D98FA5;--gold:#E8C98B;--spark:#E8C98B;--success:#79B995;--warning:#E8B96D;--error:#D97979;--info:#83AFCB;--lav:#30232C;--bordeaux:#8FC5A6;--silver-dust:#493640;--event-accent:#D98FA5;--event-soft:color-mix(in srgb,#D98FA5 16%,#281E25)}
 
 
 /* Layered depth: soft ambient light, tactile surfaces, and a dimensional focus orb. */
@@ -12,11 +12,11 @@
 .dark-theme .main-area::after{opacity:.08}
 .topbar{position:relative;z-index:1;background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(16px)}
 .content{position:relative;z-index:1}
-.card{position:relative;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 97%,white),var(--panel) 70%);box-shadow:0 2px 4px rgba(33,49,35,.025),0 12px 28px rgba(33,49,35,.045),inset 0 1px rgba(255,255,255,.8);transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease}
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 97%,var(--bg)),var(--panel) 70%);box-shadow:0 2px 4px rgba(33,49,35,.025),0 12px 28px rgba(33,49,35,.045),inset 0 1px rgba(255,255,255,.35);transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease}
 .dark-theme .card{background:linear-gradient(145deg,#252b27,var(--panel) 72%);box-shadow:0 8px 28px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.035)}
 .card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--green) 24%,var(--line));box-shadow:0 4px 8px rgba(33,49,35,.035),0 18px 34px rgba(33,49,35,.075),inset 0 1px rgba(255,255,255,.85)}
 .dark-theme .card:hover{box-shadow:0 14px 34px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.05)}
-.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(178,208,182,.22),transparent 42%),linear-gradient(135deg,#fff 0%,#fbfcf8 56%,#f1f6ef 100%)}
+.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(178,208,182,.22),transparent 42%),linear-gradient(135deg,#f5f2e8 0%,#f0eee3 56%,#e9eee2 100%)}
 .dark-theme .focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(98,149,112,.2),transparent 42%),linear-gradient(135deg,#252c27,#202421 70%)}
 .focus-card::after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;right:-108px;top:-128px;border:1px solid rgba(91,133,99,.11);box-shadow:0 0 0 18px rgba(91,133,99,.025),0 0 0 38px rgba(91,133,99,.02);pointer-events:none}
 .orb{transform-style:preserve-3d;transform:perspective(500px) rotateX(8deg) rotateY(-10deg);background:radial-gradient(circle at 30% 25%,#c7ddc5 0%,#83ad8a 34%,#547e64 67%,#42674f 100%);box-shadow:inset -9px -12px 18px rgba(32,72,47,.35),inset 5px 5px 14px rgba(255,255,255,.7),0 14px 22px rgba(48,91,58,.2),0 28px 48px rgba(48,91,58,.12);animation:orb-float 6s ease-in-out infinite}
@@ -41,45 +41,62 @@
 @media(max-width:760px){.main-area::after{left:66px}.card:hover{transform:translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.orb{animation:none}.card,.task-row,.habit-row,.calendar-day,.primary,.icon-button{transition:none}}
 
-/* Soft parchment, sage, and plum theme */
+/* Warm off-white, sage, and tomato theme */
 :root{
   color-scheme:light;
-  --bg:#eae8df;
-  --panel:#f4f2e9;
-  --text:#30352f;
-  --muted:#6d746a;
-  --line:#d8d8cb;
-  --green:#496b55;
-  --green-light:#e1e9df;
-  --lav:#ece9ef;
-  --bordeaux:#50222d;
-  --silver-dust:#c4c3d0;
-  --accent:#7d3b4b;
-  --event-accent:#7d3b4b;
-  --event-soft:#efe4e8;
+  --bg:#E9EEEA;
+  --sidebar:#DFE7E0;
+  --panel:#F1F5F0;
+  --elevated:#F5F7F3;
+  --text:#26372F;
+  --muted:#718077;
+  --line:#CDD8D0;
+  --green:#477B60;
+  --green-light:color-mix(in srgb,#477B60 14%,#F1F5F0);
+  --lav:#DFE7E0;
+  --bordeaux:#477B60;
+  --silver-dust:#CDD8D0;
+  --accent:#B9788E;
+  --rose:#B9788E;
+  --gold:#B18B4F;
+  --success:#79B995;
+  --warning:#B18B4F;
+  --error:#D97979;
+  --info:#477B60;
+  --event-accent:#B9788E;
+  --event-soft:color-mix(in srgb,#B9788E 14%,#F1F5F0);
 }
 .dark-theme{
   color-scheme:dark;
   --bg:#171216;
-  --panel:#241a20;
-  --text:#f4eef1;
-  --muted:#c4c3d0;
-  --line:#493a43;
-  --green:#d99baa;
-  --green-light:#38252e;
-  --lav:#302a36;
-  --bordeaux:#50222d;
-  --silver-dust:#c4c3d0;
-  --accent:#dfa3b1;
-  --event-accent:#dfa3b1;
-  --event-soft:#38252e;
+  --sidebar:#21191F;
+  --panel:#281E25;
+  --elevated:#30232C;
+  --text:#F5EDF1;
+  --muted:#B7A6AF;
+  --line:#493640;
+  --green:#8FC5A6;
+  --green-light:color-mix(in srgb,#8FC5A6 14%,#281E25);
+  --lav:#30232C;
+  --bordeaux:#8FC5A6;
+  --silver-dust:#493640;
+  --accent:#D98FA5;
+  --rose:#D98FA5;
+  --gold:#E8C98B;
+  --spark:#E8C98B;
+  --success:#79B995;
+  --warning:#E8B96D;
+  --error:#D97979;
+  --info:#83AFCB;
+  --event-accent:#D98FA5;
+  --event-soft:color-mix(in srgb,#D98FA5 16%,#281E25);
 }
 body{background:var(--bg);color:var(--text)}
 button,input,select{color:inherit}
 .main-area{
   background:
-    radial-gradient(ellipse at 82% 3%,rgba(158,174,151,.2),transparent 31%),
-    radial-gradient(ellipse at 12% 54%,rgba(144,119,124,.07),transparent 36%),
+    radial-gradient(ellipse at 82% 3%,rgba(156,175,136,.24),transparent 31%),
+    radial-gradient(ellipse at 12% 54%,rgba(232,65,44,.035),transparent 36%),
     var(--bg)
 }
 
@@ -107,32 +124,32 @@ button,input,select{color:inherit}
 .dark-theme .card{background:linear-gradient(145deg,#2b2027,#241a20 72%);border-color:#493a43;box-shadow:0 10px 30px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.045)}
 .card:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 6px 12px rgba(42,22,30,.05),0 19px 36px rgba(42,22,30,.085),inset 0 1px rgba(255,255,255,.85)}
 .dark-theme .card:hover{border-color:#75505e;box-shadow:0 15px 36px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.06)}
-.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(196,195,208,.28),transparent 42%),linear-gradient(135deg,#fff 0%,#fbf9fa 58%,#f0edf1 100%)}
+.focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(156,175,136,.25),transparent 42%),linear-gradient(135deg,#ecece0 0%,#e7e8dc 58%,#e2e8d9 100%)}
 .dark-theme .focus-card{background:radial-gradient(ellipse at 8% 100%,rgba(112,46,63,.3),transparent 45%),linear-gradient(135deg,#302128,#241a20 72%)}
-.focus-card::after{border-color:rgba(80,34,45,.12);box-shadow:0 0 0 18px rgba(80,34,45,.035),0 0 0 38px rgba(196,195,208,.08)}
+.focus-card::after{border-color:rgba(113,137,103,.2);box-shadow:0 0 0 18px rgba(113,137,103,.04),0 0 0 38px rgba(156,175,136,.09)}
 .dark-theme .focus-card::after{border-color:rgba(196,195,208,.16);box-shadow:0 0 0 18px rgba(196,195,208,.035),0 0 0 38px rgba(112,46,63,.1)}
-.primary{background:#50222d;border-color:#50222d;box-shadow:0 4px 12px rgba(80,34,45,.2)}
-.primary:hover{background:#68313e;border-color:#68313e;box-shadow:0 7px 16px rgba(80,34,45,.28)}
+.primary{background:#e8412c;border-color:#e8412c;box-shadow:0 4px 12px rgba(232,65,44,.2)}
+.primary:hover{background:#c93625;border-color:#c93625;box-shadow:0 7px 16px rgba(232,65,44,.28)}
 .dark-theme .primary{background:#7b3b4a;border-color:#a96776;color:#fff7f9}
 .dark-theme .primary:hover{background:#965364;border-color:#c0808f}
 .text-button,.subtle-button{color:var(--accent)}
-.trend-pill{color:#50222d;background:#efe4e8}
+.trend-pill{color:#a73527;background:#fbe8e2}
 .dark-theme .trend-pill{color:#f0bdc8;background:#482d38}
 .soft-tag{color:var(--accent);background:var(--green-light)}
 .orb{
-  background:conic-gradient(from -90deg,#50222d var(--progress),#c4c3d0 var(--progress),#c4c3d0 100%);
-  border:1px solid rgba(80,34,45,.16);
-  box-shadow:inset 0 1px 3px rgba(255,255,255,.65),0 14px 22px rgba(80,34,45,.16),0 28px 48px rgba(80,34,45,.1)
+  background:conic-gradient(from -90deg,#9caf88 var(--progress),#e5e9de var(--progress),#e5e9de 100%);
+  border:1px solid rgba(113,137,103,.22);
+  box-shadow:inset 0 1px 3px rgba(255,255,255,.72),0 14px 22px rgba(113,137,103,.16),0 28px 48px rgba(113,137,103,.1)
 }
 .orb::before{
   inset:8px;
-  background:radial-gradient(circle at 34% 25%,#fff 0%,#f3f0f3 58%,#d9d7e0 100%);
-  box-shadow:inset -6px -8px 12px rgba(80,34,45,.1),inset 3px 3px 7px rgba(255,255,255,.98)
+  background:radial-gradient(circle at 34% 25%,#eef0e4 0%,#e8e8dc 58%,#e0e7d7 100%);
+  box-shadow:inset -6px -8px 12px rgba(113,137,103,.1),inset 3px 3px 7px rgba(255,255,255,.98)
 }
-.orb::after{border-color:rgba(80,34,45,.22);box-shadow:0 12px 20px rgba(80,34,45,.14)}
-.orb-core{color:#50222d;text-shadow:none;transform:translateZ(18px)}
+.orb::after{border-color:rgba(113,137,103,.25);box-shadow:0 12px 20px rgba(113,137,103,.14)}
+.orb-core{color:#52634b;text-shadow:none;transform:translateZ(18px)}
 .orb-core strong{font-family:Arial,sans-serif}
-.orb-core span{color:#66525a}
+.orb-core span{color:#697565}
 .dark-theme .orb{
   background:conic-gradient(from -90deg,#e0a1af var(--progress),#514650 var(--progress),#514650 100%);
   border-color:rgba(196,195,208,.3);
@@ -141,18 +158,18 @@ button,input,select{color:inherit}
 .dark-theme .orb::before{background:radial-gradient(circle at 34% 25%,#f0eef2 0%,#d9d7e0 60%,#bdbbc8 100%);box-shadow:inset -6px -8px 12px rgba(80,34,45,.18),inset 3px 3px 7px rgba(255,255,255,.75)}
 .dark-theme .orb::after{border-color:rgba(196,195,208,.32);box-shadow:0 12px 20px rgba(0,0,0,.28)}
 .dark-theme .orb-core{color:#50222d}
-.progress-track span,.bar-track span.today-bar,.analytics-track i,.legend-dot{background:linear-gradient(135deg,#50222d,#9a5b6a)}
+.progress-track span,.bar-track span.today-bar,.analytics-track i,.legend-dot{background:linear-gradient(135deg,#718967,#9caf88)}
 .dark-theme .progress-track span,.dark-theme .bar-track span.today-bar,.dark-theme .analytics-track i,.dark-theme .legend-dot{background:linear-gradient(135deg,#bd7a89,#e3aab6)}
-.bar-track span{background:#c4c3d0}
+.bar-track span{background:#dce5d5}
 .dark-theme .bar-track span{background:#544751}
-.habit-emoji,.goal-icon,.setting-symbol{background:#f0e9ed;color:#713b4b}
+.habit-emoji,.goal-icon,.setting-symbol{background:#eaf0e4;color:#607957}
 .dark-theme .habit-emoji,.dark-theme .goal-icon,.dark-theme .setting-symbol{background:#3a2932;color:#e1a9b5}
 .insight-card{background:#f0e9ed;color:#50222d}
 .dark-theme .insight-card{background:#38252e;color:#ead7dd}
 .local-indicator,.online-dot{color:var(--accent)}
-.priority{background:#f2edf0;color:#74616a}
-.priority.high{color:#9a4051;background:#f7e7eb}
-.priority.low{color:#6e6470;background:#eeedf1}
+.priority{background:#f1eee6;color:#74765f}
+.priority.high{color:#b33425;background:#fbe8e2}
+.priority.low{color:#607957;background:#eaf0e4}
 .dark-theme .priority{background:#3b3038;color:#d4cbd0}
 .dark-theme .priority.high{color:#ef9fac;background:#4b2b36}
 .dark-theme .priority.low{color:#c4c3d0;background:#35303b}
@@ -160,7 +177,8 @@ button,input,select{color:inherit}
 app-root .modal-backdrop{z-index:30;display:flex;align-items:center;justify-content:center;overflow-y:auto}
 app-root .modal{max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain}
 @supports (height:100dvh){app-root .modal{max-height:calc(100dvh - 40px)}}
-.toast{background:#50222d;color:#fff}
+.toast{background:#526b4c;color:#fff}
+.dark-theme .toast{background:#50222d;color:#fff}
 .weekday-field{border:0;padding:0;margin:16px 0 12px}
 .weekday-field legend{font-size:11px;font-weight:700;color:var(--text);margin-bottom:10px}
 .preset-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
@@ -168,7 +186,7 @@ app-root .modal{max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavio
 .preset-chip:hover,.weekday-chip:hover{border-color:var(--accent);color:var(--accent)}
 .weekday-picker{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
 .weekday-chip{min-height:39px;padding:8px 3px;font-weight:650}
-.weekday-chip.selected{background:#50222d;border-color:#50222d;color:#fff;box-shadow:0 4px 10px rgba(80,34,45,.2)}
+.weekday-chip.selected{background:#e8412c;border-color:#e8412c;color:#fff;box-shadow:0 4px 10px rgba(232,65,44,.2)}
 .dark-theme .weekday-chip.selected{background:#a65e70;border-color:#c98696;color:#fff;box-shadow:0 4px 13px rgba(0,0,0,.28)}
 .validation-note{display:block;margin-top:8px;color:#a43d4c;font-size:10px}
 .habit-check:disabled{opacity:.34;cursor:not-allowed;box-shadow:none}
@@ -192,7 +210,7 @@ app-root .modal{max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavio
 .timeline-row:first-child .timeline-rail::before{top:22px}
 .timeline-row:last-child .timeline-rail::before{bottom:calc(100% - 24px)}
 .timeline-rail span{position:relative;z-index:1;margin-top:20px;width:9px;height:9px;border:2px solid var(--silver-dust);border-radius:50%;background:var(--panel)}
-.timeline-rail span.done-rail{border-color:#50222d;background:#50222d;box-shadow:0 0 0 3px rgba(80,34,45,.12)}
+.timeline-rail span.done-rail{border-color:#718967;background:#718967;box-shadow:0 0 0 3px rgba(113,137,103,.12)}
 .dark-theme .timeline-rail span.done-rail{border-color:#d99baa;background:#d99baa;box-shadow:0 0 0 3px rgba(217,155,170,.16)}
 .timeline-task{min-width:0;display:flex;align-items:center;gap:9px;padding:10px 4px 10px 7px;border-bottom:1px solid var(--line)}
 .timeline-row:last-child .timeline-task{border-bottom:0}
@@ -208,7 +226,7 @@ app-root .modal{max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavio
 .bar-track span{transition:height 720ms cubic-bezier(.2,.75,.25,1),background-color .3s ease}
 .bar-value{height:10px;color:var(--muted);font:600 8px/10px Arial,sans-serif}
 .bar-col{gap:4px}
-.bar-track span.today-bar{box-shadow:inset 0 1px rgba(255,255,255,.45),0 3px 8px rgba(80,34,45,.16)}
+.bar-track span.today-bar{box-shadow:inset 0 1px rgba(255,255,255,.45),0 3px 8px rgba(113,137,103,.16)}
 .dark-theme .bar-track span.today-bar{box-shadow:inset 0 1px rgba(255,255,255,.24),0 3px 10px rgba(0,0,0,.22)}
 @media(prefers-reduced-motion:reduce){.orb{animation:none}}
 
@@ -267,14 +285,14 @@ body{min-width:320px}
 @media (max-width: 760px) {
   app-root .shell {
     min-height: 100vh;
-    padding-bottom: calc(176px + env(safe-area-inset-bottom));
+    padding-bottom: calc(136px + env(safe-area-inset-bottom));
   }
 
   app-root .shell .sidebar {
     position: fixed;
     inset: auto 0 0;
     width: 100%;
-    height: calc(176px + env(safe-area-inset-bottom));
+    height: calc(136px + env(safe-area-inset-bottom));
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     border: 0;
     border-top: 1px solid var(--line);
@@ -292,7 +310,7 @@ body{min-width:320px}
     display: grid;
     flex: 1;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: 4px 5px;
   }
 
@@ -1618,17 +1636,27 @@ app-root .timer-page-content .timer-console-bottom {
 
 html:not(.dark-theme) {
   color-scheme: light;
-  --bg: #f1f0eb;
-  --panel: #f9f8f4;
-  --text: #343a35;
-  --muted: #777d75;
-  --line: #e2e1d9;
-  --green: #607767;
-  --green-light: #e7ece7;
-  --lav: #eeecef;
-  --bordeaux: #5d7162;
-  --silver-dust: #c9cdc3;
-  --accent: #687b6b;
+  --bg:#E9EEEA;
+  --sidebar:#DFE7E0;
+  --panel:#F1F5F0;
+  --elevated:#F5F7F3;
+  --text:#26372F;
+  --muted:#718077;
+  --line:#CDD8D0;
+  --green:#477B60;
+  --green-light:color-mix(in srgb,#477B60 14%,#F1F5F0);
+  --lav:#DFE7E0;
+  --bordeaux:#477B60;
+  --silver-dust:#CDD8D0;
+  --accent:#B9788E;
+  --rose:#B9788E;
+  --gold:#B18B4F;
+  --success:#79B995;
+  --warning:#B18B4F;
+  --error:#D97979;
+  --info:#477B60;
+  --event-accent:#B9788E;
+  --event-soft:color-mix(in srgb,#B9788E 14%,#F1F5F0);
 }
 
 html:not(.dark-theme) body {
@@ -1638,110 +1666,110 @@ html:not(.dark-theme) body {
 
 html:not(.dark-theme) app-root .main-area {
   background:
-    radial-gradient(ellipse at 82% 3%, rgba(166, 181, 162, .13), transparent 31%),
-    radial-gradient(ellipse at 12% 54%, rgba(194, 187, 169, .1), transparent 36%),
+    radial-gradient(ellipse at 82% 3%, rgba(156, 175, 136, .24), transparent 31%),
+    radial-gradient(ellipse at 12% 54%, rgba(232, 65, 44, .035), transparent 36%),
     var(--bg);
 }
 
 html:not(.dark-theme) app-root .main-area::after {
   opacity: .07;
   background-image:
-    linear-gradient(rgba(82, 100, 84, .07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(82, 100, 84, .07) 1px, transparent 1px);
+    linear-gradient(rgba(113, 137, 103, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(113, 137, 103, .08) 1px, transparent 1px);
 }
 
 html:not(.dark-theme) app-root .card {
-  border-color: #e4e2da;
-  background: linear-gradient(145deg, #fbfaf7, #f7f6f1 78%);
-  box-shadow: 0 3px 12px rgba(48, 54, 46, .035), inset 0 1px rgba(255, 255, 255, .72);
+  border-color: #e0e5d8;
+  background: linear-gradient(145deg, #efeee3, #e6e5d9 78%);
+  box-shadow: 0 3px 12px rgba(48, 54, 46, .045), inset 0 1px rgba(255, 255, 255, .28);
 }
 
 html:not(.dark-theme) app-root .card:hover {
-  border-color: #d3d9d0;
-  box-shadow: 0 6px 16px rgba(48, 54, 46, .055), inset 0 1px rgba(255, 255, 255, .8);
+  border-color: #cbd7c1;
+  box-shadow: 0 6px 16px rgba(65, 82, 58, .08), inset 0 1px rgba(255, 255, 255, .35);
 }
 
 html:not(.dark-theme) app-root .focus-card {
   background:
-    radial-gradient(ellipse at 8% 100%, rgba(167, 187, 163, .13), transparent 42%),
-    linear-gradient(135deg, #faf9f5, #f4f4ed 100%);
+    radial-gradient(ellipse at 8% 100%, rgba(156, 175, 136, .25), transparent 42%),
+    linear-gradient(135deg, #ecece0, #e2e8d9 100%);
 }
 
 html:not(.dark-theme) app-root .primary {
-  border-color: #667b69;
-  background: #667b69;
-  box-shadow: 0 3px 8px rgba(74, 96, 77, .12);
+  border-color: #e8412c;
+  background: #e8412c;
+  box-shadow: 0 3px 8px rgba(232, 65, 44, .2);
 }
 
 html:not(.dark-theme) app-root .primary:hover {
-  border-color: #586d5c;
-  background: #586d5c;
-  box-shadow: 0 5px 12px rgba(74, 96, 77, .16);
+  border-color: #c93625;
+  background: #c93625;
+  box-shadow: 0 5px 12px rgba(232, 65, 44, .26);
 }
 
 html:not(.dark-theme) app-root .trend-pill,
 html:not(.dark-theme) app-root .soft-tag {
-  color: #5b705f;
-  background: #e9eee8;
+  color: #627756;
+  background: #eaf0e4;
 }
 
 html:not(.dark-theme) app-root .orb {
-  background: conic-gradient(from -90deg, #748a77 var(--progress), #e3e6df var(--progress), #e3e6df 100%);
-  border-color: rgba(91, 112, 95, .15);
-  box-shadow: inset 0 1px 3px rgba(255, 255, 255, .7), 0 12px 24px rgba(70, 91, 73, .1);
+  background: conic-gradient(from -90deg, #9caf88 var(--progress), #e5e9de var(--progress), #e5e9de 100%);
+  border-color: rgba(113, 137, 103, .22);
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, .7), 0 12px 24px rgba(70, 91, 73, .13);
 }
 
 html:not(.dark-theme) app-root .orb::before {
-  background: radial-gradient(circle at 34% 25%, #f8f8f2, #eceee7 100%);
+  background: radial-gradient(circle at 34% 25%, #ecece0, #dce5d2 100%);
   box-shadow: inset 0 2px 7px rgba(76, 91, 74, .06);
 }
 
 html:not(.dark-theme) app-root .orb::after {
-  border-color: rgba(91, 112, 95, .14);
-  box-shadow: 0 10px 18px rgba(70, 91, 73, .08);
+  border-color: rgba(113, 137, 103, .2);
+  box-shadow: 0 10px 18px rgba(70, 91, 73, .1);
 }
 
 html:not(.dark-theme) app-root .orb-core {
-  color: #4d6252;
+  color: #52634b;
 }
 
 html:not(.dark-theme) app-root .progress-track span,
 html:not(.dark-theme) app-root .bar-track span.today-bar,
 html:not(.dark-theme) app-root .analytics-track i,
 html:not(.dark-theme) app-root .legend-dot {
-  background: #7b927e;
+  background: #829975;
 }
 
 html:not(.dark-theme) app-root .bar-track span {
-  background: #dfe4dc;
+  background: #dce5d5;
 }
 
 html:not(.dark-theme) app-root .habit-emoji,
 html:not(.dark-theme) app-root .goal-icon,
 html:not(.dark-theme) app-root .setting-symbol,
 html:not(.dark-theme) app-root .insight-card {
-  background: #ecefe9;
-  color: #5e7262;
+  background: #eaf0e4;
+  color: #607957;
 }
 
 html:not(.dark-theme) app-root .priority {
-  background: #efeee8;
-  color: #766f5e;
+  background: #f1eee6;
+  color: #74765f;
 }
 
 html:not(.dark-theme) app-root .priority.high {
-  background: #f2e9e5;
-  color: #986a5e;
+  background: #fbe8e2;
+  color: #b33425;
 }
 
 html:not(.dark-theme) app-root .priority.low {
-  background: #e9eee8;
-  color: #66806b;
+  background: #eaf0e4;
+  color: #607957;
 }
 
 html:not(.dark-theme) app-root .timer-console {
-  border-color: #deddd3;
-  background: linear-gradient(145deg, #faf9f4, #eeeee7);
+  border-color: #d5d6c9;
+  background: linear-gradient(145deg, #e9eade, #e0e1d5);
   box-shadow: 0 18px 34px rgba(48, 54, 46, .1), inset 0 1px rgba(255, 255, 255, .86);
 }
 
@@ -1791,14 +1819,14 @@ html:not(.dark-theme) app-root .timer-start:hover {
 
 html:not(.dark-theme) app-root .timer-reset {
   border-color: #d7d8d0;
-  background: #f4f3ee;
+  background: #e6e7dc;
   color: #5f665e;
   box-shadow: 0 3px 0 #deded6;
 }
 
 html:not(.dark-theme) app-root .timer-reset:not(:disabled):hover {
   border-color: #c9cec5;
-  background: #e8eae3;
+  background: #dce0d4;
 }
 
 html:not(.dark-theme) app-root .day-summary-progress strong {
@@ -2229,15 +2257,15 @@ app-root .goal-progress-actions .goal-add-step {
 
 @media (max-width: 760px) {
   app-root .shell {
-    padding-bottom: calc(176px + env(safe-area-inset-bottom));
+    padding-bottom: calc(136px + env(safe-area-inset-bottom));
   }
 
   app-root .shell .sidebar {
-    height: calc(176px + env(safe-area-inset-bottom));
+    height: calc(136px + env(safe-area-inset-bottom));
   }
 
   app-root .shell .sidebar nav {
-    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2506,7 +2534,7 @@ app-root .timer-fullscreen-toggle {
   padding: 9px 13px;
   border: 1px solid #d5d9d0;
   border-radius: 9px;
-  background: #f0f1eb;
+  background: #e8e9dd;
   color: #586459;
   box-shadow: 0 2px 6px rgba(45, 54, 45, .06);
   font-size: 12px;
@@ -2515,7 +2543,7 @@ app-root .timer-fullscreen-toggle {
 
 app-root .timer-fullscreen-toggle:hover {
   border-color: #bcc7bb;
-  background: #e6e9e1;
+  background: #dde0d3;
 }
 
 app-root .timer-fullscreen-toggle span:first-child {
@@ -2569,7 +2597,7 @@ html.dark-theme app-root .timer-fullscreen-error {
   height: 100dvh;
   margin: 0;
   overflow: hidden;
-  background: #e9ebe5;
+  background: #e4e1d6;
 }
 
 .shell.timer-fullscreen .main-area::after {
@@ -2597,7 +2625,7 @@ html.dark-theme .shell.timer-fullscreen .main-area {
   min-height: 0;
   flex: 1 1 auto;
   padding: 58px 24px 20px;
-  background: radial-gradient(ellipse at 50% 48%, #f0f1ea 0%, #e9ebe5 58%, #e6e9e2 100%);
+  background: radial-gradient(ellipse at 50% 48%, #ecece0 0%, #e4e1d6 58%, #dcdfd2 100%);
 }
 
 html.dark-theme .shell.timer-fullscreen .timer-page-content .timer-scene {
@@ -2624,8 +2652,8 @@ html.dark-theme .shell.timer-fullscreen .timer-page-content .timer-scene {
 }
 
 html:not(.dark-theme) app-root .timer-console {
-  border-color: #d8d9d0;
-  background: linear-gradient(155deg, #f3f2eb, #ebece4);
+  border-color: #d5d6c9;
+  background: linear-gradient(155deg, #e9eade, #dfe1d5);
   box-shadow: 0 12px 30px rgba(48, 54, 46, .08), inset 0 1px rgba(255,255,255,.72);
 }
 
@@ -2714,6 +2742,18 @@ html.dark-theme app-root .timer-reset {
 
 html.dark-theme app-root .timer-reset:not(:disabled):hover {
   background: #3b3338;
+}
+
+html.dark-theme app-root .goal-stat-icon,
+html.dark-theme app-root .weekly-stat-icon {
+  color: var(--spark);
+  background: color-mix(in srgb, var(--spark) 14%, var(--panel));
+}
+
+html.dark-theme app-root .console-light:not(.running) {
+  border-color: #9c7945;
+  background: var(--spark);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--spark) 45%, transparent);
 }
 
 @media (max-width: 600px) {
@@ -2915,11 +2955,11 @@ app-root .history-stats {
 }
 
 html:not(.dark-theme) {
-  --muted: #62685f;
+  --muted: #718077;
 }
 
 html.dark-theme {
-  --muted: #c0c5bc;
+  --muted: #B7A6AF;
 }
 
 app-root small {
@@ -3055,7 +3095,7 @@ html[dir="rtl"] app-root .field-input:not([type="date"]):not([type="time"]) {
 
 @media (max-width: 760px) {
   app-root {
-    --mobile-nav-height: 176px;
+    --mobile-nav-height: 136px;
   }
 
   app-root .shell .sidebar {
@@ -3080,9 +3120,9 @@ html[dir="rtl"] app-root .field-input:not([type="date"]):not([type="time"]) {
   }
 
   app-root .shell .sidebar .nav-item.active {
-    background: color-mix(in srgb, var(--accent) 12%, var(--panel));
-    color: var(--accent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
+    background: color-mix(in srgb, var(--green) 12%, var(--panel));
+    color: var(--green);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 24%, transparent);
   }
 
   app-root .shell .sidebar .nav-icon {
@@ -3101,15 +3141,15 @@ html[dir="rtl"] app-root .field-input:not([type="date"]):not([type="time"]) {
   }
 
   app-root .modal-backdrop {
-    align-items: center;
-    padding: 14px 12px calc(var(--mobile-nav-height) + 14px + env(safe-area-inset-bottom));
+    align-items: flex-start;
+    padding: max(18px, env(safe-area-inset-top)) 12px calc(var(--mobile-nav-height) + 22px + env(safe-area-inset-bottom));
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
   }
 
   app-root .modal {
     width: min(470px, 100%);
-    max-height: calc(100dvh - var(--mobile-nav-height) - 42px - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - var(--mobile-nav-height) - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     padding: 20px;
     overscroll-behavior: contain;
     scroll-behavior: smooth;
@@ -3118,4 +3158,549 @@ html[dir="rtl"] app-root .field-input:not([type="date"]):not([type="time"]) {
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
   }
+
+  app-root .modal .modal-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding-bottom: 15px;
+    background: var(--panel);
+  }
+}
+
+html:not(.dark-theme) app-root .sidebar {
+  background-color: var(--sidebar);
+}
+
+html.dark-theme app-root .sidebar {
+  background-color: var(--sidebar);
+}
+
+@media (max-width: 760px) {
+  html:not(.dark-theme) app-root .shell .sidebar,
+  html.dark-theme app-root .shell .sidebar {
+    background-color: color-mix(in srgb, var(--sidebar) 96%, transparent);
+  }
+}
+
+html:not(.dark-theme) app-root .main-area {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 83% 0%, color-mix(in srgb, var(--green) 9%, transparent), transparent 34%),
+    radial-gradient(ellipse at 12% 56%, color-mix(in srgb, var(--rose) 5%, transparent), transparent 38%);
+}
+
+html.dark-theme app-root .main-area {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 83% 0%, color-mix(in srgb, var(--green) 12%, transparent), transparent 34%),
+    radial-gradient(ellipse at 12% 56%, color-mix(in srgb, var(--rose) 8%, transparent), transparent 38%);
+}
+
+app-root .main-area::after {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 35%, transparent) 1px, transparent 1px);
+}
+
+html:not(.dark-theme) app-root .topbar,
+html.dark-theme app-root .topbar {
+  background-color: var(--elevated);
+}
+
+html:not(.dark-theme) app-root .card,
+html.dark-theme app-root .card {
+  background-color: var(--panel);
+  border-color: var(--line);
+}
+
+html:not(.dark-theme) app-root .card {
+  background-image: linear-gradient(145deg, var(--elevated), var(--panel) 78%);
+}
+
+html.dark-theme app-root .card {
+  background-image: linear-gradient(145deg, var(--elevated), var(--panel) 72%);
+}
+
+html:not(.dark-theme) app-root .focus-card,
+html:not(.dark-theme) app-root .day-summary {
+  background-image:
+    radial-gradient(ellipse at 8% 100%, color-mix(in srgb, var(--green) 10%, transparent), transparent 45%),
+    linear-gradient(135deg, var(--elevated), var(--panel) 72%);
+}
+
+html.dark-theme app-root .focus-card,
+html.dark-theme app-root .day-summary {
+  background-image:
+    radial-gradient(ellipse at 8% 100%, color-mix(in srgb, var(--rose) 14%, transparent), transparent 45%),
+    linear-gradient(135deg, var(--elevated), var(--panel) 72%);
+}
+
+html:not(.dark-theme) app-root .modal,
+html.dark-theme app-root .modal,
+html:not(.dark-theme) .auth-page .auth-card,
+html.dark-theme .auth-page .auth-card {
+  background-color: var(--elevated);
+  border-color: var(--line);
+}
+
+html:not(.dark-theme) app-root .field-input,
+html:not(.dark-theme) app-root .search-input,
+html:not(.dark-theme) app-root .day-date-input,
+html.dark-theme app-root .field-input,
+html.dark-theme app-root .search-input,
+html.dark-theme app-root .day-date-input {
+  background-color: var(--elevated);
+  border-color: var(--line);
+}
+
+app-root .brand-mark,
+app-root .footer span:first-child,
+app-root .greeting-row h1 em,
+app-root .text-button,
+app-root .subtle-button {
+  color: var(--green);
+}
+
+app-root .brand-light {
+  color: var(--rose);
+}
+
+app-root .workspace-label,
+app-root .eyebrow,
+app-root .task-list-head,
+app-root .sidebar .nav-item {
+  color: var(--muted);
+}
+
+app-root .primary,
+app-root .timer-start {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+
+html:not(.dark-theme) app-root .primary {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--elevated);
+}
+
+html.dark-theme app-root .primary {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+html:not(.dark-theme) app-root .timer-start {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--elevated);
+}
+
+html.dark-theme app-root .timer-start {
+  background-color: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--green) 90%, var(--elevated)), var(--green));
+}
+
+app-root .primary:hover,
+app-root .timer-start:hover {
+  background-color: color-mix(in srgb, var(--green) 86%, var(--text));
+}
+
+html:not(.dark-theme) app-root .primary:hover,
+html.dark-theme app-root .primary:hover,
+html:not(.dark-theme) app-root .timer-start:hover {
+  background-color: color-mix(in srgb, var(--green) 86%, var(--text));
+}
+
+html.dark-theme app-root .timer-start:hover {
+  background-color: color-mix(in srgb, var(--green) 86%, var(--text));
+  background-image: linear-gradient(180deg, var(--green), color-mix(in srgb, var(--green) 86%, var(--text)));
+}
+
+html:not(.dark-theme) app-root .trend-pill,
+html.dark-theme app-root .trend-pill {
+  color: var(--rose);
+  background-color: color-mix(in srgb, var(--rose) 13%, var(--panel));
+}
+
+app-root .progress-track span,
+app-root .bar-track span.today-bar,
+app-root .analytics-track i,
+app-root .legend-dot,
+app-root .calendar-dot,
+app-root .check.checked {
+  background-color: var(--success);
+}
+
+html:not(.dark-theme) app-root .progress-track span,
+html:not(.dark-theme) app-root .bar-track span.today-bar,
+html:not(.dark-theme) app-root .analytics-track i,
+html.dark-theme app-root .progress-track span,
+html.dark-theme app-root .bar-track span.today-bar,
+html.dark-theme app-root .analytics-track i {
+  background-image: linear-gradient(90deg, #79B995, #A8D8B8);
+}
+
+app-root .bar-track span {
+  background-color: var(--line);
+}
+
+html:not(.dark-theme) app-root .priority,
+html:not(.dark-theme) app-root .priority.medium,
+html.dark-theme app-root .priority,
+html.dark-theme app-root .priority.medium {
+  color: var(--warning);
+  background-color: color-mix(in srgb, var(--warning) 16%, var(--panel));
+}
+
+html:not(.dark-theme) app-root .priority.high,
+html.dark-theme app-root .priority.high {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 14%, var(--panel));
+}
+
+html:not(.dark-theme) app-root .priority.low,
+html.dark-theme app-root .priority.low {
+  color: var(--success);
+  background-color: color-mix(in srgb, var(--success) 14%, var(--panel));
+}
+
+app-root .event-status {
+  color: var(--info);
+  background-color: color-mix(in srgb, var(--info) 16%, var(--panel));
+}
+
+app-root .status-done {
+  background-color: var(--success);
+}
+
+app-root .status-missed {
+  background-color: var(--error);
+}
+
+html:not(.dark-theme) app-root .goal-status-complete,
+html.dark-theme app-root .goal-status-complete {
+  color: var(--success);
+  background-color: color-mix(in srgb, var(--success) 16%, var(--panel));
+}
+
+html:not(.dark-theme) app-root .goal-status-overdue,
+html.dark-theme app-root .goal-status-overdue,
+app-root .reminder-overdue .notification-icon {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 16%, var(--panel));
+}
+
+app-root .status-skipped {
+  background-color: var(--warning);
+}
+
+app-root .status-in-progress,
+app-root .reminder-adhkar .notification-icon {
+  background-color: var(--info);
+}
+
+app-root .console-light.running {
+  border-color: var(--success);
+  background-color: var(--success);
+}
+
+app-root .reminder-end-of-day .notification-icon {
+  color: var(--warning);
+  background-color: color-mix(in srgb, var(--warning) 16%, var(--panel));
+}
+
+html:not(.dark-theme) app-root .weekday-chip.selected,
+html.dark-theme app-root .weekday-chip.selected {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+
+html:not(.dark-theme) app-root .weekday-chip.selected {
+  color: var(--elevated);
+}
+
+html.dark-theme app-root .weekday-chip.selected {
+  color: var(--bg);
+}
+
+app-root .validation-note {
+  color: var(--error);
+}
+
+app-root .auth-error,
+app-root .backend-error {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 12%, var(--panel));
+  border-color: color-mix(in srgb, var(--error) 35%, var(--line));
+}
+
+html:not(.dark-theme) .auth-page {
+  background-image:
+    radial-gradient(ellipse at 18% 20%, color-mix(in srgb, var(--green) 16%, transparent), transparent 34%),
+    radial-gradient(ellipse at 85% 85%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 32%);
+}
+
+html.dark-theme .auth-page {
+  background-image:
+    radial-gradient(ellipse at 18% 20%, color-mix(in srgb, var(--green) 12%, transparent), transparent 34%),
+    radial-gradient(ellipse at 85% 85%, color-mix(in srgb, var(--rose) 9%, transparent), transparent 32%);
+}
+
+html:not(.dark-theme) app-root .timer-console,
+html.dark-theme app-root .timer-console {
+  background-color: var(--panel);
+  border-color: var(--line);
+}
+
+html:not(.dark-theme) app-root .timer-console {
+  background-image: linear-gradient(155deg, var(--elevated), var(--panel));
+}
+
+html.dark-theme app-root .timer-console {
+  background-image: linear-gradient(155deg, var(--elevated), var(--panel));
+}
+
+html:not(.dark-theme) app-root .timer-console-top,
+html:not(.dark-theme) app-root .timer-console-bottom,
+html:not(.dark-theme) app-root .screen-label,
+html:not(.dark-theme) app-root .screen-state,
+html.dark-theme app-root .timer-console-top,
+html.dark-theme app-root .timer-console-bottom,
+html.dark-theme app-root .screen-label,
+html.dark-theme app-root .screen-state {
+  color: var(--muted);
+}
+
+html:not(.dark-theme) app-root .timer-console-top,
+html:not(.dark-theme) app-root .timer-console-bottom,
+html.dark-theme app-root .timer-console-top,
+html.dark-theme app-root .timer-console-bottom {
+  border-color: var(--line);
+}
+
+html:not(.dark-theme) app-root .stopwatch-display,
+html.dark-theme app-root .stopwatch-display {
+  color: var(--text);
+}
+
+html:not(.dark-theme) app-root .timer-reset,
+html.dark-theme app-root .timer-reset {
+  background-color: var(--panel);
+  border-color: var(--line);
+  color: var(--text);
+  background-image: linear-gradient(180deg, var(--elevated), var(--panel));
+}
+
+html:not(.dark-theme) app-root .timer-reset:hover,
+html.dark-theme app-root .timer-reset:hover {
+  background-color: var(--elevated);
+  background-image: linear-gradient(180deg, var(--elevated), var(--elevated));
+}
+
+html:not(.dark-theme) app-root .goal-stat-icon,
+html:not(.dark-theme) app-root .weekly-stat-icon,
+html.dark-theme app-root .goal-stat-icon,
+html.dark-theme app-root .weekly-stat-icon {
+  color: var(--gold);
+  background-color: color-mix(in srgb, var(--gold) 14%, var(--panel));
+}
+
+html:not(.dark-theme) app-root .console-light:not(.running),
+html.dark-theme app-root .console-light:not(.running) {
+  border-color: var(--gold);
+  background-color: var(--gold);
+}
+
+app-root .online-dot {
+  background-color: var(--success);
+}
+
+app-root .avatar {
+  background-color: var(--elevated);
+  color: var(--muted);
+}
+
+app-root .delete-button:hover {
+  color: var(--error);
+}
+
+app-root .check {
+  border-color: var(--line);
+}
+
+app-root .check.checked {
+  color: var(--text);
+}
+
+html:not(.dark-theme) app-root .timeline-rail span.done-rail,
+html.dark-theme app-root .timeline-rail span.done-rail {
+  border-color: var(--success);
+  background-color: var(--success);
+}
+
+html:not(.dark-theme) app-root .day-summary-progress strong,
+html.dark-theme app-root .day-summary-progress strong,
+html:not(.dark-theme) app-root .orb-core,
+html.dark-theme app-root .orb-core {
+  color: var(--green);
+}
+
+html:not(.dark-theme) app-root .orb-core span,
+html.dark-theme app-root .orb-core span {
+  color: var(--muted);
+}
+
+app-root .toast {
+  background-color: color-mix(in srgb, var(--success) 18%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--success) 35%, var(--line));
+  color: var(--text);
+}
+
+html:not(.dark-theme) app-root .orb,
+html.dark-theme app-root .orb {
+  background-image: conic-gradient(var(--success) var(--progress), var(--line) 0);
+}
+
+html:not(.dark-theme) app-root .orb::before,
+html.dark-theme app-root .orb::before {
+  background-image: linear-gradient(145deg, var(--elevated), var(--panel));
+}
+
+html:not(.dark-theme) app-root .habit-emoji,
+html:not(.dark-theme) app-root .goal-icon,
+html:not(.dark-theme) app-root .setting-symbol,
+html.dark-theme app-root .habit-emoji,
+html.dark-theme app-root .goal-icon,
+html.dark-theme app-root .setting-symbol {
+  background-color: var(--green-light);
+  color: var(--green);
+}
+
+html:not(.dark-theme) app-root .insight-card,
+html.dark-theme app-root .insight-card {
+  background-color: var(--green-light);
+  color: var(--green);
+}
+
+html:not(.dark-theme) .strength-text-1,
+html:not(.dark-theme) .mismatch,
+html.dark-theme .strength-text-1,
+html.dark-theme .mismatch {
+  color: var(--error);
+}
+
+html:not(.dark-theme) .strength-text-2,
+html.dark-theme .strength-text-2 {
+  color: var(--warning);
+}
+
+html:not(.dark-theme) .strength-text-3,
+html:not(.dark-theme) .strength-text-4,
+html:not(.dark-theme) .matched,
+html.dark-theme .strength-text-3,
+html.dark-theme .strength-text-4,
+html.dark-theme .matched {
+  color: var(--success);
+}
+
+html:not(.dark-theme) .strength-segment.active,
+html.dark-theme .strength-segment.active,
+html:not(.dark-theme) .segment-2.active,
+html.dark-theme .segment-2.active {
+  background-color: var(--warning);
+}
+
+html:not(.dark-theme) .segment-3.active,
+html:not(.dark-theme) .segment-4.active,
+html.dark-theme .segment-3.active,
+html.dark-theme .segment-4.active {
+  background-color: var(--success);
+}
+
+app-root .crumb span,
+app-root .delete-button,
+app-root .row-menu {
+  color: var(--muted);
+}
+
+app-root .calendar-day:hover {
+  border-color: var(--info);
+}
+
+html:not(.dark-theme) app-root .topbar {
+  background-color: var(--sidebar);
+}
+
+html:not(.dark-theme) button:focus-visible,
+html:not(.dark-theme) input:focus-visible,
+html:not(.dark-theme) select:focus-visible {
+  outline-color: var(--info);
+}
+
+html:not(.dark-theme) app-root .week-card {
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--green) 9%, var(--elevated)),
+    var(--panel) 78%
+  );
+}
+
+html.dark-theme app-root .orb-core strong {
+  color: #A8D8B8;
+}
+
+html:not(.dark-theme) app-root .calendar-day.selected-day,
+html:not(.dark-theme) app-root .calendar-day.selected-day.is-today {
+  color: var(--elevated);
+}
+
+html:not(.dark-theme) app-root .calendar-day.selected-day .calendar-dot {
+  background-color: var(--elevated);
+}
+
+html:not(.dark-theme) .auth-page .auth-card .auth-google {
+  border-color: var(--line) !important;
+  background-color: var(--elevated) !important;
+  color: var(--text) !important;
+}
+
+html:not(.dark-theme) .auth-page .auth-card .auth-google:not(:disabled):hover {
+  border-color: var(--line) !important;
+  background-color: var(--panel) !important;
+}
+
+html:not(.dark-theme) .auth-page .auth-card .auth-google:not(:disabled):active {
+  background-color: var(--panel) !important;
+}
+
+html:not(.dark-theme) .auth-page .auth-card .auth-google:focus-visible {
+  outline-color: var(--info);
+}
+
+html.dark-theme app-root .orb {
+  background-color: #281E25;
+  background-image: conic-gradient(#8FC5A6 var(--progress), #281E25 0);
+}
+
+html.dark-theme app-root .orb::before {
+  background-color: #281E25;
+  background-image: linear-gradient(145deg, #281E25, #281E25);
+  box-shadow:
+    inset 0 0 14px color-mix(in srgb, #79B995 14%, transparent),
+    inset -6px -8px 12px color-mix(in srgb, #79B995 10%, transparent),
+    inset 3px 3px 7px rgba(255, 255, 255, .32);
+}
+
+html.dark-theme app-root .orb-core span {
+  color: #B7A6AF;
+}
+
+html:not(.dark-theme) app-root .reminder-adhkar .notification-icon,
+html.dark-theme app-root .reminder-adhkar .notification-icon {
+  color: var(--green);
+  background-color: color-mix(in srgb, var(--green) 16%, var(--panel));
 }
